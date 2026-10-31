@@ -19,8 +19,11 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
+        'role',
+        'status',
     ];
 
     /**
@@ -44,5 +47,19 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isOwner(): bool    { return $this->role === 'owner'; }
+    public function isApproved(): bool { return $this->status === 'approved'; }
+
+    // Tujuan halaman setelah login, sesuai role
+    public function homeRoute(): string
+    {
+        return match ($this->role) {
+            'owner' => 'owner.users',
+            'admin' => 'admin.dashboard',
+            'kasir' => 'pos.index',
+            default => 'login',
+        };
     }
 }
