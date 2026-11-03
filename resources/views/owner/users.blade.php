@@ -21,7 +21,7 @@
         </span>
         <div>
             <h1>Pengguna</h1>
-            <p>Kelola akun admin dan kasir toko kosmetik Asya</p>
+            <p>Kelola akun admin dan kasir toko kosmetik Asyfa</p>
         </div>
     </div>
     <button type="button" class="btn-add" id="btnAdd">+ Tambah Pengguna</button>
@@ -102,13 +102,6 @@
             <option value="kasir" @selected(request('role') === 'kasir')>Kasir</option>
         </select>
 
-        <select name="status" onchange="this.form.submit()">
-            <option value="">Semua Status</option>
-            <option value="approved" @selected(request('status') === 'approved')>Aktif</option>
-            <option value="pending"  @selected(request('status') === 'pending')>Menunggu</option>
-            <option value="rejected" @selected(request('status') === 'rejected')>Ditolak</option>
-        </select>
-
         <a href="{{ route('owner.users') }}" class="btn-reset">↻ Reset</a>
     </form>
 
@@ -133,7 +126,6 @@
                     <th>Username</th>
                     <th>Role</th>
                     <th>Status</th>
-                    <th>Terakhir Login</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -167,7 +159,6 @@
                         @endif
                     </td>
                     <td><span class="st st-{{ $u->status }}">{{ $statusLabel }}</span></td>
-                    <td>{{ $u->last_login_at ? $u->last_login_at->format('d/m/Y H:i') : '-' }}</td>
                     <td>
                         <div class="row-actions">
 
@@ -268,15 +259,6 @@
                     </select>
                 </div>
 
-                <div class="fg" id="statusGroup">
-                    <label for="f_status">Status</label>
-                    <select id="f_status" name="status" disabled>
-                        <option value="approved" @selected(old('status') === 'approved')>Aktif</option>
-                        <option value="pending"  @selected(old('status') === 'pending')>Menunggu</option>
-                        <option value="rejected" @selected(old('status') === 'rejected')>Ditolak</option>
-                    </select>
-                </div>
-
                 <div class="fg full">
                     <label for="f_password">Password <small id="pwHint"></small></label>
                     <input type="password" id="f_password" name="password" placeholder="Minimal 8 karakter" autocomplete="new-password">
@@ -301,7 +283,6 @@
     const modeFld     = document.getElementById('formMode');
     const editIdFld   = document.getElementById('editId');
     const titleEl     = document.getElementById('modalTitle');
-    const statusGroup = document.getElementById('statusGroup');
     const pwHint      = document.getElementById('pwHint');
     const storeUrl    = @json(route('owner.users.store'));
 
@@ -314,8 +295,6 @@
         modeFld.value       = isEdit ? 'edit' : 'tambah';
         editIdFld.value     = isEdit && data ? data.id : (restore ? editIdFld.value : '');
 
-        statusGroup.style.display          = isEdit ? '' : 'none';
-        form.elements['status'].disabled   = !isEdit;
         pwHint.textContent = isEdit ? '(kosongkan jika tidak diganti)' : '';
 
         if (!restore) {
@@ -323,7 +302,6 @@
             form.elements['username'].value = data ? data.username : '';
             form.elements['email'].value    = data ? data.email : '';
             form.elements['role'].value     = data && data.role ? data.role : 'admin';
-            form.elements['status'].value   = data ? data.status : 'approved';
             form.elements['password'].value = '';
         }
 
