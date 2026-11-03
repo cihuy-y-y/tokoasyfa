@@ -58,3 +58,64 @@ select {
 .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
 .alert-success { background: #dcfce7; color: #166534; }
 .alert-error { background: #fee2e2; color: #991b1b; }
+
+/* Peringatan pendaftar baru */
+.alert-warn { background: #fef3c7; color: #92400e; }
+.alert-warn a { color: #92400e; font-weight: 600; text-decoration: underline; margin-left: 6px; }
+
+/* Avatar nama */
+.u-cell { display: flex; align-items: center; gap: 12px; }
+.u-avatar {
+    width: 42px; height: 42px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* Badge role */
+.role {
+    display: inline-block;
+    padding: 5px 18px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+}
+.role-admin { background: #fde2e8; color: #d6456f; }
+.role-kasir { background: #ece6fd; color: #7c5cdb; }
+.muted { color: #9ca3af; }
+
+/* Badge status akun */
+.st-approved { background: #d9f5e6; color: #059669; }
+.st-pending  { background: #fdefd3; color: #b45309; }
+.st-rejected { background: #fee2e2; color: #dc2626; }
+
+/* Setujui / tolak di baris */
+.approve-form { display: flex; gap: 6px; }
+.approve-form select {
+    height: 36px;
+    padding: 0 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    background: #fff;
+}
+.btn-ok, .btn-no {
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.btn-ok { border: none; background: var(--pink); color: #fff; }
+.btn-ok:hover { background: var(--pink-dark); }
+.btn-no { border: 1px solid #fca5a5; background: #fff; color: #dc2626; }
+.btn-no:hover { background: #fef2f2; }
+
+.row-actions { flex-wrap: wrap; }
+.data-table { min-width: 960px; }

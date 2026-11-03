@@ -6,9 +6,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder;
 
 class User extends Authenticatable
 {
+
+    // Semua user kecuali owner (pending/rejected punya role null, jadi harus ikut)
+    public function scopeBukanOwner($query)
+    {
+        return $query->where(function ($w) {
+            $w->whereNull('role')->orWhere('role', '!=', 'owner');
+        });
+    }
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -46,6 +56,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_login_at' => 'datetime', 
         ];
     }
 

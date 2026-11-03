@@ -60,9 +60,6 @@
 
                 <button type="submit" class="btn-login">Login</button>
             </form>
-            
-            <p class="switch-text">Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a></p>
-        
         </div>
     </div>
 </div>
