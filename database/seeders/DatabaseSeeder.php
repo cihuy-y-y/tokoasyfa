@@ -24,5 +24,6 @@ class DatabaseSeeder extends Seeder
             'role' => 'owner',
             'status' => 'approved',
         ]);
+        $this->call(ProductSeeder::class);
     }
 }

@@ -3,8 +3,10 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Owner\UserManagementController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductController;
 
-Route::get('/', fn () => view('auth.login'))->name('auth.login');
+Route::get('/', fn () => view('home'))->name('home');
 
 // Tamu (belum login)
 Route::middleware('guest')->group(function () {
@@ -26,8 +28,16 @@ Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->grou
 });
 
 // Dashboard: ADMIN (owner juga boleh)
+// Dashboard + Data Barang: ADMIN (owner juga boleh)
 Route::middleware(['auth', 'role:owner,admin'])->group(function () {
-    Route::get('/admin/dashboard', fn () => view('admin.dashboard'))->name('admin.dashboard');
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+    // Harus di atas resource supaya "hapus-massal" tidak dianggap {product}
+    Route::delete('/barang/hapus-massal', [ProductController::class, 'bulkDestroy'])->name('barang.bulk-destroy');
+
+    Route::resource('barang', ProductController::class)
+        ->parameters(['barang' => 'product'])
+        ->except(['create', 'show', 'edit']);
 });
 
 // POS: KASIR (owner juga boleh)

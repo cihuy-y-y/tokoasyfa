@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelola Akun - Toko Kosmetik Asya</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+@extends('layouts.app')
+
+@section('title', 'Dashboard')
+
+@push('styles')
     <link rel="stylesheet" href="{{ asset('css/owner.css') }}">
-</head>
-<body>
+
+@section('content')
 <div class="container">
 
     <header class="topbar">
@@ -18,10 +16,6 @@
         <div class="topbar-actions">
             <a href="{{ route('admin.dashboard') }}" class="btn btn-ghost">Dashboard</a>
             <a href="{{ route('pos.index') }}" class="btn btn-ghost">POS</a>
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-outline">Logout</button>
-            </form>
         </div>
     </header>
 
@@ -144,5 +138,4 @@
     @endif
 
 </div>
-</body>
-</html>
+@endsection
