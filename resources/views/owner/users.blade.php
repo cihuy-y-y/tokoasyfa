@@ -251,7 +251,7 @@
                     <input type="email" id="f_email" name="email" value="{{ old('email') }}" placeholder="Masukkan email">
                 </div>
 
-                <div class="fg">
+                <div class="fg full">
                     <label for="f_role">Role</label>
                     <select id="f_role" name="role">
                         <option value="admin" @selected(old('role') === 'admin')>Admin (Dashboard)</option>
