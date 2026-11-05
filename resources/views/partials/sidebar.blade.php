@@ -7,8 +7,6 @@
          'icon'  => '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],
         ['label' => 'Data Barang', 'route' => 'barang.index', 'roles' => ['owner', 'admin'],
          'icon'  => '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>'],
-        ['label' => 'Transaksi',   'route' => null, 'roles' => ['owner', 'admin'],
-         'icon'  => '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/>'],
         ['label' => 'Laporan',     'route' => null, 'roles' => ['owner', 'admin'],
          'icon'  => '<path d="M3 3v18h18"/><path d="m7 15 4-5 3 3 5-7"/>'],
         ['label' => 'Pengguna',    'route' => 'owner.users', 'roles' => ['owner'], 'match' => 'owner.*',
