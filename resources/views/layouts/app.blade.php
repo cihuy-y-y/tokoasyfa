@@ -9,6 +9,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
     @stack('styles')
+    @include('partials.theme')
 </head>
 <body>
 <div class="app">

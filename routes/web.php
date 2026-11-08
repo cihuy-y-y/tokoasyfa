@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\PengaturanController;
+use App\Http\Controllers\NotifikasiController;
 
 Route::get('/', fn () => view('home'))->name('home');
 
@@ -14,6 +16,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 });
+
+Route::post('/notifikasi/baca', [NotifikasiController::class, 'baca'])
+    ->middleware('auth')->name('notifikasi.baca');
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
@@ -54,4 +59,21 @@ Route::middleware(['auth', 'role:owner,admin'])->group(function () {
 // POS: KASIR (owner juga boleh)
 Route::middleware(['auth', 'role:owner,kasir'])->group(function () {
     Route::get('/pos', fn () => view('pos.index'))->name('pos.index');
+});
+
+// Pengaturan: OWNER & ADMIN
+Route::middleware(['auth', 'role:owner,admin'])->prefix('pengaturan')->name('pengaturan.')->group(function () {
+    Route::get('/', [PengaturanController::class, 'index'])->name('index');
+    Route::put('/toko', [PengaturanController::class, 'updateToko'])->name('toko');
+    Route::post('/gambar/{jenis}', [PengaturanController::class, 'uploadGambar'])
+        ->whereIn('jenis', ['logo', 'banner'])->name('gambar');
+    Route::put('/preferensi', [PengaturanController::class, 'preferensi'])->name('preferensi');
+    Route::put('/profil', [PengaturanController::class, 'updateProfil'])->name('profil');
+    Route::put('/password', [PengaturanController::class, 'updatePassword'])->name('password');
+});
+
+// Pengaturan sensitif: hanya OWNER
+Route::middleware(['auth', 'role:owner'])->prefix('pengaturan')->name('pengaturan.')->group(function () {
+    Route::put('/pembayaran', [PengaturanController::class, 'updatePembayaran'])->name('pembayaran');
+    Route::get('/backup', [PengaturanController::class, 'backup'])->name('backup');
 });

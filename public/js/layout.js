@@ -21,3 +21,19 @@ profileBtn.addEventListener('click', (e) => {
 document.addEventListener('click', (e) => {
     if (!profile.contains(e.target)) profile.classList.remove('open');
 });
+
+// Panel notifikasi
+const notif    = document.getElementById('notif');
+const notifBtn = document.getElementById('notifBtn');
+
+if (notif && notifBtn) {
+    notifBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        notif.classList.toggle('open');
+        profile.classList.remove('open');   // tutup dropdown profil
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!notif.contains(e.target)) notif.classList.remove('open');
+    });
+}
