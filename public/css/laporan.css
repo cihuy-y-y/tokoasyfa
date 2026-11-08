@@ -1,0 +1,146 @@
+/* ===== Periode + tombol download ===== */
+.page-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+.range-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 46px;
+    padding: 0 8px 0 14px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--muted);
+}
+.range-form svg { width: 20px; height: 20px; }
+.range-form input[type="date"] {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+}
+.btn-range {
+    height: 32px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 8px;
+    background: #fde8ee;
+    color: var(--pink-dark);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.btn-range:hover { background: #fbd7e2; }
+
+.btn-add { display: inline-block; }
+
+/* Kartu: tren turun */
+.stat-note.down { color: #dc2626; }
+
+/* ===== Baris grafik ===== */
+.rep-grid {
+    display: grid;
+    grid-template-columns: 1.7fr 1fr 1.1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+.rep-grid .panel, .panel { min-width: 0; }
+.h-sm { font-size: 18px !important; }
+
+.period-badge {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fbf3f6;
+    font-size: 12px;
+    color: #4b5563;
+    white-space: nowrap;
+}
+
+/* ===== Donat ===== */
+.donut-box { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; justify-content: center; }
+.donut-wrap { position: relative; width: 170px; height: 170px; flex-shrink: 0; }
+.donut-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    pointer-events: none;
+}
+.donut-center strong { font-size: 26px; line-height: 1.1; }
+.donut-center span { font-size: 12px; color: var(--muted); }
+
+.legend { list-style: none; flex: 1; min-width: 160px; }
+.legend li { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: 13px; }
+.legend i { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+.lg-name { flex: 1; color: #374151; }
+.lg-val { font-size: 12px; color: var(--muted); }
+
+/* ===== Produk terlaris ===== */
+.top-rep { list-style: none; }
+.top-rep li { display: flex; align-items: center; gap: 12px; padding: 9px 0; }
+.top-rep .rank { width: 18px; }
+.top-rep .thumb { width: 40px; height: 40px; border-radius: 8px; }
+.top-rep .thumb svg { width: 20px; height: 20px; }
+.top-info { flex: 1; min-width: 0; }
+.top-line { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.top-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #374151; }
+.top-qty { font-weight: 600; white-space: nowrap; }
+.bar { height: 6px; margin-top: 6px; border-radius: 999px; background: #fde8ee; overflow: hidden; }
+.bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #e98aa9, #d0668a); }
+.empty-li { justify-content: center; color: #9ca3af; font-size: 14px; padding: 30px 0 !important; }
+
+/* ===== Daftar transaksi ===== */
+.btn-export {
+    display: flex; align-items: center;
+    height: 46px;
+    padding: 0 18px;
+    border-radius: 10px;
+    background: var(--pink);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+}
+.btn-export:hover { background: var(--pink-dark); }
+
+.p-thumb.sm { width: 38px; height: 38px; }
+.p-thumb.sm svg { width: 20px; height: 20px; }
+.u-cell { display: flex; align-items: center; gap: 12px; }
+.data-table { min-width: 1100px; }
+
+/* Status transaksi */
+.st-lunas   { background: #d9f5e6; color: #059669; }
+.st-pending { background: #fdefd3; color: #b45309; }
+.st-batal   { background: #fee2e2; color: #dc2626; }
+
+/* ===== Modal detail ===== */
+.detail-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+    margin-bottom: 18px;
+}
+.detail-meta dt { font-size: 12px; color: var(--muted); }
+.detail-meta dd { font-size: 14px; font-weight: 500; }
+.detail-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border);
+    font-size: 15px;
+}
+.detail-total strong { font-size: 18px; color: var(--pink-dark); }
+
+/* ===== Responsif ===== */
+@media (max-width: 1280px) {
+    .rep-grid { grid-template-columns: 1fr 1fr; }
+    .rep-grid > section:first-child { grid-column: 1 / -1; }
+}
+@media (max-width: 800px) {
+    .rep-grid { grid-template-columns: 1fr; }
+    .range-form { flex-wrap: wrap; height: auto; padding: 8px 12px; }
+}

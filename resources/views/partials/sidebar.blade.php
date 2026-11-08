@@ -7,7 +7,7 @@
          'icon'  => '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'],
         ['label' => 'Data Barang', 'route' => 'barang.index', 'roles' => ['owner', 'admin'],
          'icon'  => '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>'],
-        ['label' => 'Laporan',     'route' => null, 'roles' => ['owner', 'admin'],
+        ['label' => 'Laporan',     'route' => 'laporan.index', 'roles' => ['owner', 'admin'],
          'icon'  => '<path d="M3 3v18h18"/><path d="m7 15 4-5 3 3 5-7"/>'],
         ['label' => 'Pengguna',    'route' => 'owner.users', 'roles' => ['owner'], 'match' => 'owner.*',
          'icon'  => '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>'],

@@ -5,6 +5,7 @@ use App\Http\Controllers\Owner\UserManagementController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\LaporanController;
 
 Route::get('/', fn () => view('home'))->name('home');
 
@@ -17,18 +18,24 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 // Hanya OWNER
-Route::middleware(['auth', 'role:owner'])->prefix('owner')->name('owner.')->group(function () {
-    Route::get('/users', [UserManagementController::class, 'index'])->name('users');
+// Edit & hapus transaksi: hanya OWNER
+Route::middleware(['auth', 'role:owner'])->group(function () {
+    Route::get('/users', [UserManagementController::class, 'index'])->name('owner.users');
+    Route::put('/laporan/{transaction}', [LaporanController::class, 'update'])->name('laporan.update');
+    Route::delete('/laporan/{transaction}', [LaporanController::class, 'destroy'])->name('laporan.destroy');
 
     // Harus di atas {user} supaya "hapus-massal" tidak dianggap id
-    Route::delete('/users/hapus-massal', [UserManagementController::class, 'bulkDestroy'])->name('users.bulk-destroy');
+    Route::delete('/users/hapus-massal', [UserManagementController::class, 'bulkDestroy'])->name('owner.users.bulk-destroy');
 
-    Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
-    Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
-    Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+    Route::post('/users', [UserManagementController::class, 'store'])->name('owner.users.store');
+    Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('owner.users.update');
+    Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('owner.users.destroy');
 
-    Route::patch('/users/{user}/approve', [UserManagementController::class, 'approve'])->name('users.approve');
-    Route::patch('/users/{user}/reject', [UserManagementController::class, 'reject'])->name('users.reject');
+    Route::patch('/users/{user}/approve', [UserManagementController::class, 'approve'])->name('owner.users.approve');
+    Route::patch('/users/{user}/reject', [UserManagementController::class, 'reject'])->name('owner.users.reject');
+
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
 });
 
 // Dashboard: ADMIN (owner juga boleh)
