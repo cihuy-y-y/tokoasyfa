@@ -28,9 +28,10 @@ class Setting extends Model
         'logo'   => null,
         'banner' => null,
 
-        'notif_transaksi' => '1',
-        'notif_stok'      => '1',
-        'notif_laporan'   => '0',
+        'notif_transaksi'       => '1',
+        'notif_stok_menipis'    => '1',
+        'notif_stok_habis'      => '1',
+        'notif_laporan'         => '0',
 
         'tema_warna'    => 'pink',
         'mode_tampilan' => 'terang',

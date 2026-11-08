@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\NotifikasiController;
+use App\Http\Controllers\KasirDashboardController;
 
 Route::get('/', fn () => view('home'))->name('home');
 
@@ -38,9 +39,6 @@ Route::middleware(['auth', 'role:owner'])->group(function () {
 
     Route::patch('/users/{user}/approve', [UserManagementController::class, 'approve'])->name('owner.users.approve');
     Route::patch('/users/{user}/reject', [UserManagementController::class, 'reject'])->name('owner.users.reject');
-
-    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
-    Route::get('/laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
 });
 
 // Dashboard: ADMIN (owner juga boleh)
@@ -54,6 +52,9 @@ Route::middleware(['auth', 'role:owner,admin'])->group(function () {
     Route::resource('barang', ProductController::class)
         ->parameters(['barang' => 'product'])
         ->except(['create', 'show', 'edit']);
+
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
 });
 
 // POS: KASIR (owner juga boleh)
@@ -76,4 +77,9 @@ Route::middleware(['auth', 'role:owner,admin'])->prefix('pengaturan')->name('pen
 Route::middleware(['auth', 'role:owner'])->prefix('pengaturan')->name('pengaturan.')->group(function () {
     Route::put('/pembayaran', [PengaturanController::class, 'updatePembayaran'])->name('pembayaran');
     Route::get('/backup', [PengaturanController::class, 'backup'])->name('backup');
+});
+
+// Area KASIR
+Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
+    Route::get('/dashboard', [KasirDashboardController::class, 'index'])->name('dashboard');
 });

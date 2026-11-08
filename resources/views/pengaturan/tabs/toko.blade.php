@@ -68,7 +68,7 @@
             </div>
 
             <div class="pref-row">
-                @foreach (['notif_transaksi' => 'Notifikasi transaksi baru', 'notif_stok' => 'Notifikasi stok menipis', 'notif_laporan' => 'Notifikasi laporan harian'] as $k => $label)
+                @foreach (['notif_transaksi' => 'Notifikasi transaksi baru', 'notif_stok_menipis' => 'Notifikasi stok menipis', 'notif_laporan' => 'Notifikasi laporan harian', 'notif_stok_habis' => 'Notifikasi stok habis'] as $k => $label)
                     <div class="pref-item">
                         <span>{{ $label }}</span>
                         <label class="switch">

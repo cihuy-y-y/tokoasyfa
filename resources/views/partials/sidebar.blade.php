@@ -43,6 +43,8 @@
         @endforeach
     </nav>
 
+    <p class="side-quote">Cantik<br>Setiap Hari<br>Bersama Asyfa <span>♥</span></p>
+
     <form action="{{ route('logout') }}" method="POST" class="logout-form">
         @csrf
         <button type="submit" class="menu-item">

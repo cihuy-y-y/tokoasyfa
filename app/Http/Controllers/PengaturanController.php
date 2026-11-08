@@ -13,7 +13,7 @@ use Illuminate\Validation\Rule;
 
 class PengaturanController extends Controller
 {
-        private const PREF_KEYS = ['notif_transaksi', 'notif_stok', 'notif_laporan', 'tema_warna', 'mode_tampilan'];
+        private const PREF_KEYS = ['notif_transaksi', 'notif_stok_menipis','notif_stok_habis', 'notif_laporan', 'tema_warna', 'mode_tampilan'];
 
     public function index(Request $request)
     {

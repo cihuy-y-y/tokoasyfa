@@ -328,6 +328,7 @@ a { text-decoration: none; color: inherit; }
 }
 .notif-ico svg { width: 19px; height: 19px; }
 .ni-stok      { background: #fdefd3; color: #f59e0b; }
+.ni-habis     { background: #fee2e2; color: #dc2626; }
 .ni-transaksi { background: #d9f5e6; color: #10b981; }
 .ni-laporan   { background: #e9e3fb; color: #7c5cdb; }
 .ni-user      { background: #fde2e8; color: #e0587f; }
@@ -343,3 +344,34 @@ a { text-decoration: none; color: inherit; }
     .notif { position: static; }
     .notif-panel { right: 12px; left: 12px; width: auto; top: 70px; position: fixed; }
 }
+
+/* Tagline sidebar kasir */
+.side-quote {
+    margin: 0 70px 14px 14px;
+    font-family: 'Great Vibes', cursive;
+    font-size: 22px;
+    line-height: 1.15;
+    color: #b83a66;
+    transform: rotate(-5deg);
+    transform-origin: left bottom;
+}
+.side-quote span { font-family: 'Poppins', sans-serif; font-size: 16px; }
+
+/* ===== Hiasan daun di sidebar ===== */
+.sidebar { overflow: hidden; }
+
+.sidebar::after {
+    content: "";
+    position: absolute;
+    right: -6px;
+    bottom: 64px;                 /* di atas tombol Logout */
+    width: 150px;
+    height: 200px;
+    background: url('../images/daun.png') no-repeat right bottom / contain;
+    opacity: .6;
+    pointer-events: none;         /* klik tembus ke menu */
+    z-index: 0;
+}
+
+/* Isi sidebar tetap di atas daun */
+.sidebar > * { position: relative; z-index: 1; }

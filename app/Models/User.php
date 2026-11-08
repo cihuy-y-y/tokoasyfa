@@ -70,7 +70,7 @@ class User extends Authenticatable
         return match ($this->role) {
             'owner' => 'owner.users',
             'admin' => 'admin.dashboard',
-            'kasir' => 'pos.index',
+            'kasir' => 'kasir.dashboard',
             default => 'login',
         };
     }

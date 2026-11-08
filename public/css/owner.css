@@ -1,69 +1,8 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-    font-family: 'Inter', sans-serif;
-    background: #fdf2f4;
-    color: #1f2937;
-}
-
-.container { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
-
-.topbar {
-    display: flex; justify-content: space-between; align-items: center;
-    flex-wrap: wrap; gap: 16px; margin-bottom: 24px;
-}
-.topbar h1 { font-size: 26px; }
-.topbar p { color: #6b7280; margin-top: 4px; font-size: 14px; }
-.topbar-actions { display: flex; gap: 10px; align-items: center; }
-
-.card {
-    background: #fff; border-radius: 12px; padding: 22px;
-    margin-bottom: 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06);
-}
-.card h2 { font-size: 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #f1f1f1; vertical-align: middle; }
-th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #6b7280; }
-.empty { text-align: center; color: #9ca3af; padding: 24px; }
-
-.actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.inline-form { display: flex; gap: 8px; }
-
-select {
-    padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 6px;
-    font-family: inherit; font-size: 14px; background: #fff;
-}
-
-.btn {
-    display: inline-block; padding: 8px 14px; border-radius: 6px; border: 1px solid transparent;
-    font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none;
-}
-.btn-primary { background: #d0668a; color: #fff; }
-.btn-primary:hover { background: #bb5578; }
-.btn-danger { background: #fff; color: #dc2626; border-color: #fca5a5; }
-.btn-danger:hover { background: #fef2f2; }
-.btn-outline { background: #fff; color: #374151; border-color: #d1d5db; }
-.btn-outline:hover { background: #f9fafb; }
-.btn-ghost { color: #d0668a; background: transparent; }
-.btn-ghost:hover { background: #fce7ef; }
-
-.badge { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
-.badge-warn { background: #fef3c7; color: #92400e; }
-.badge-ok { background: #dcfce7; color: #166534; }
-.badge-danger { background: #fee2e2; color: #991b1b; }
-.badge-role { background: #fce7ef; color: #bb5578; }
-
-.alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
-.alert-success { background: #dcfce7; color: #166534; }
-.alert-error { background: #fee2e2; color: #991b1b; }
-
-/* Peringatan pendaftar baru */
+/* ===== Peringatan pendaftar baru ===== */
 .alert-warn { background: #fef3c7; color: #92400e; }
 .alert-warn a { color: #92400e; font-weight: 600; text-decoration: underline; margin-left: 6px; }
 
-/* Avatar nama */
+/* ===== Avatar nama ===== */
 .u-cell { display: flex; align-items: center; gap: 12px; }
 .u-avatar {
     width: 42px; height: 42px;
@@ -75,7 +14,7 @@ select {
     font-size: 16px;
 }
 
-/* Badge role */
+/* ===== Badge role ===== */
 .role {
     display: inline-block;
     padding: 5px 18px;
@@ -87,12 +26,12 @@ select {
 .role-kasir { background: #ece6fd; color: #7c5cdb; }
 .muted { color: #9ca3af; }
 
-/* Badge status akun */
+/* ===== Badge status akun ===== */
 .st-approved { background: #d9f5e6; color: #059669; }
 .st-pending  { background: #fdefd3; color: #b45309; }
 .st-rejected { background: #fee2e2; color: #dc2626; }
 
-/* Setujui / tolak di baris */
+/* ===== Setujui / tolak di baris ===== */
 .approve-form { display: flex; gap: 6px; }
 .approve-form select {
     height: 36px;
@@ -119,3 +58,26 @@ select {
 
 .row-actions { flex-wrap: wrap; }
 .data-table { min-width: 960px; }
+
+/* ===== Input password dengan ikon mata ===== */
+.pw-wrap { position: relative; width: 100%; }
+.fg .pw-wrap input { width: 100%; padding-right: 44px; }
+
+.pw-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #6b7280;
+    cursor: pointer;
+}
+.pw-toggle:hover { color: var(--pink-dark); }
+.pw-toggle svg { width: 20px; height: 20px; display: block; }

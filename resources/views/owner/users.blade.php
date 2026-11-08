@@ -6,7 +6,7 @@
     {{-- dashboard.css = kartu ringkasan, barang.css = tabel/filter/modal --}}
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/barang.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/pengguna.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/owner.css') }}">
 @endpush
 
 @section('content')
@@ -261,7 +261,17 @@
 
                 <div class="fg full">
                     <label for="f_password">Password <small id="pwHint"></small></label>
-                    <input type="password" id="f_password" name="password" placeholder="Minimal 8 karakter" autocomplete="new-password">
+                    <div class="pw-wrap">
+                        <input type="password" id="f_password" name="password" placeholder="Minimal 8 karakter" autocomplete="new-password">
+                        <button type="button" class="pw-toggle" id="pwToggle" aria-label="Tampilkan password">
+                            <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                                <path d="M17.9 17.9A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a18.7 18.7 0 0 1 5.1-5.9M9.9 5.1A10.4 10.4 0 0 1 12 5c7 0 11 7 11 7a18.5 18.5 0 0 1-2.2 3.2M14.1 14.1a3 3 0 1 1-4.2-4.2M1 1l22 22"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -309,6 +319,23 @@
     }
 
     function closeModal() { modal.classList.remove('show'); }
+
+     // ===== Tampilkan / sembunyikan password =====
+    const pwInput  = document.getElementById('f_password');
+    const pwToggle = document.getElementById('pwToggle');
+
+    function resetPwIcon() {
+        pwInput.type = 'password';
+        pwToggle.querySelector('.eye-on').style.display  = '';
+        pwToggle.querySelector('.eye-off').style.display = 'none';
+    }
+
+    pwToggle.addEventListener('click', () => {
+        const tampil = pwInput.type === 'password';
+        pwInput.type = tampil ? 'text' : 'password';
+        pwToggle.querySelector('.eye-on').style.display  = tampil ? 'none' : '';
+        pwToggle.querySelector('.eye-off').style.display = tampil ? '' : 'none';
+    });
 
     document.getElementById('btnAdd').addEventListener('click', () => openModal('tambah'));
     document.getElementById('modalClose').addEventListener('click', closeModal);

@@ -26,6 +26,7 @@
                 'transaksi' => '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/>',
                 'laporan'   => '<path d="M3 3v18h18"/><path d="m7 15 4-5 3 3 5-7"/>',
                 'user'      => '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+                'habis' => '<circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/>',
             ];
         @endphp
             

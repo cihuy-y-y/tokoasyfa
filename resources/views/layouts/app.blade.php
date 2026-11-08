@@ -14,7 +14,7 @@
 <body>
 <div class="app">
 
-    @include('partials.sidebar')
+    @include(auth()->user()->role === 'kasir' ? 'partials.sidebar-kasir' : 'partials.sidebar')
 
     <div class="main">
         @include('partials.header')

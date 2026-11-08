@@ -17,10 +17,12 @@ class NotifikasiService
     {
         $s     = Setting::semua();
         $items = collect();
+        // Kasir tidak boleh membuka halaman admin, jadi linknya dimatikan
+        $url = fn (string $nama, array $param = []) => $user->role === 'kasir' ? '#' : route($nama, $param);
 
-        // ---- Stok menipis ----
-        if (($s['notif_stok'] ?? '0') === '1') {
-            $menipis = Product::menipis()->orderBy('stok')->get(['nama', 'stok', 'updated_at']);
+        // ---- Stok menipis (masih ada sisa, tapi di bawah batas) ----
+        if (($s['notif_stok_menipis'] ?? '0') === '1') {
+            $menipis = Product::where('stok', '>', 0)->menipis()->orderBy('stok')->get(['nama', 'stok', 'updated_at']);
 
             if ($menipis->isNotEmpty()) {
                 $nama = $menipis->take(3)->pluck('nama')->implode(', ');
@@ -30,8 +32,26 @@ class NotifikasiService
                     'ikon'  => 'stok',
                     'judul' => $menipis->count() . ' barang stok menipis',
                     'pesan' => $nama . ($sisa > 0 ? " dan {$sisa} lainnya" : ''),
-                    'url'   => route('barang.index', ['stok' => 'menipis']),
+                    'url'   => $url('barang.index', ['stok' => 'menipis']),
                     'waktu' => $menipis->max('updated_at'),
+                ]);
+            }
+        }
+
+        // ---- Stok habis ----
+        if (($s['notif_stok_habis'] ?? '0') === '1') {
+            $habis = Product::where('stok', 0)->orderBy('nama')->get(['nama', 'updated_at']);
+
+            if ($habis->isNotEmpty()) {
+                $nama = $habis->take(3)->pluck('nama')->implode(', ');
+                $sisa = $habis->count() - 3;
+
+                $items->push([
+                    'ikon'  => 'habis',
+                    'judul' => $habis->count() . ' barang stok habis',
+                    'pesan' => $nama . ($sisa > 0 ? " dan {$sisa} lainnya" : ''),
+                    'url'   => $url('barang.index', ['stok' => 'habis']),
+                    'waktu' => $habis->max('updated_at'),
                 ]);
             }
         }
@@ -51,7 +71,7 @@ class NotifikasiService
                     'judul' => 'Transaksi ' . $t->kode,
                     'pesan' => 'Rp ' . number_format($t->total, 0, ',', '.') . ' via ' . $t->metode
                                . ' (' . ($t->kasir->name ?? 'kasir') . ')',
-                    'url'   => route('laporan.index', ['q' => $t->kode]),
+                    'url'   => $url('laporan.index', ['q' => $t->kode]),
                     'waktu' => $t->tanggal,
                 ]);
             }
@@ -66,7 +86,7 @@ class NotifikasiService
                 'judul' => 'Laporan harian',
                 'pesan' => (clone $hariIni)->count() . ' transaksi, pendapatan Rp '
                            . number_format((clone $hariIni)->sum('total'), 0, ',', '.') . ' hari ini',
-                'url'   => route('laporan.index'),
+                'url'   => $url('laporan.index'),
                 'waktu' => now()->startOfDay(),   // muncul sebagai "baru" lagi tiap hari
             ]);
         }
