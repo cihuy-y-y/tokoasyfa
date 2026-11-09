@@ -31,6 +31,8 @@
             <p>Kelola informasi toko, akun, dan konfigurasi sistem sesuai kebutuhan.</p>
         </div>
     </div>
+
+    <p class="hero-quote">Belanja cantik<br>jadi lebih mudah <span>♥</span></p>
 </div>
 
 @if (session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif

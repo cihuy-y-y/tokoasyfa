@@ -1,0 +1,24 @@
+.day-sum { display: flex; gap: 12px; flex-wrap: wrap; }
+.day-sum > div {
+    min-width: 150px;
+    padding: 10px 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+}
+.day-sum small { display: block; font-size: 12px; color: var(--muted); }
+.day-sum strong { font-size: 18px; color: var(--pink-dark); }
+
+.jam {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: var(--pink-soft);
+    color: var(--pink-dark);
+    font-size: 13px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+
+a.act { text-decoration: none; }
+.data-table { min-width: 900px; }

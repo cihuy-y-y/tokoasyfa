@@ -9,8 +9,14 @@ use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\KasirDashboardController;
+use App\Http\Controllers\PosController;
+use App\Http\Controllers\KasirStokController;
+use App\Http\Controllers\KasirLaporanController;
 
 Route::get('/', fn () => view('home'))->name('home');
+
+Route::get('/notifikasi', [NotifikasiController::class, 'index'])
+    ->middleware('auth')->name('notifikasi.index');
 
 // Tamu (belum login)
 Route::middleware('guest')->group(function () {
@@ -59,7 +65,19 @@ Route::middleware(['auth', 'role:owner,admin'])->group(function () {
 
 // POS: KASIR (owner juga boleh)
 Route::middleware(['auth', 'role:owner,kasir'])->group(function () {
-    Route::get('/pos', fn () => view('pos.index'))->name('pos.index');
+    Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
+    Route::post('/pos', [PosController::class, 'store'])->name('pos.store');
+});
+
+Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {
+    Route::get('/dashboard', [KasirDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/stok', [KasirStokController::class, 'index'])->name('stok');
+    Route::get('/laporan', [KasirLaporanController::class, 'index'])->name('laporan');
+});
+
+// Struk: semua role aktif (kasir hanya bisa melihat transaksinya sendiri, dicek di controller)
+Route::middleware(['auth', 'role:owner,admin,kasir'])->group(function () {
+    Route::get('/pos/struk/{transaction}', [PosController::class, 'struk'])->name('pos.struk');
 });
 
 // Pengaturan: OWNER & ADMIN

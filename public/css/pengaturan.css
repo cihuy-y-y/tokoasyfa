@@ -221,3 +221,23 @@
     .up-grid { grid-template-columns: 1fr; }
     .set-tab { padding: 10px 14px; }
 }
+
+/* ===== Quote di judul halaman ===== */
+.page-bar .hero-quote {
+    margin: 0;
+    font-family: 'Great Vibes', cursive;
+    font-size: 30px;
+    line-height: 1.1;
+    color: var(--pink);
+    text-align: right;
+    transform: rotate(-4deg);
+}
+.page-bar .hero-quote span {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    color: #e0587f;
+}
+
+@media (max-width: 600px) {
+    .page-bar .hero-quote { display: none; }
+}

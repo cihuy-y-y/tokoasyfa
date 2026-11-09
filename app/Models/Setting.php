@@ -39,7 +39,6 @@ class Setting extends Model
         'metode_qris'     => '1',
         'metode_transfer' => '1',
         'metode_ewallet'  => '1',
-        'metode_cod'      => '1',
         'metode_tunai'    => '1',
         'bank_nama'       => null,
         'bank_rekening'   => null,

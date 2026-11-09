@@ -57,12 +57,25 @@ class AuthController extends Controller
 
         $user->update(['last_login_at' => now()]);
 
-        $request->session()->regenerate();
+        // Redirect berdasarkan role
+        if ($user->role === 'owner') {
+            return redirect()->route('admin.dashboard');
+        }
 
-        $user->update(['last_login_at' => now()]);
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
 
-        return redirect()->route($user->homeRoute());
-    }
+        if ($user->role === 'kasir') {
+            return redirect()->route('kasir.dashboard');
+        }
+
+        // Jika role tidak dikenali
+        Auth::logout();
+
+        return redirect()->route('login')
+            ->withErrors(['username' => 'Role akun tidak dikenali.']);
+        }
 
 
     public function logout(Request $request)

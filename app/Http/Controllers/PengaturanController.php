@@ -169,7 +169,7 @@ class PengaturanController extends Controller
             'ewallet_nomor'  => ['nullable', 'string', 'max:30'],
         ]);
 
-        foreach (['metode_qris', 'metode_transfer', 'metode_ewallet', 'metode_cod', 'metode_tunai'] as $k) {
+        foreach (['metode_qris', 'metode_transfer', 'metode_ewallet', 'metode_tunai'] as $k) {
             $data[$k] = $request->boolean($k) ? '1' : '0';
         }
 

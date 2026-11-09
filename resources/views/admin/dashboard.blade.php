@@ -9,11 +9,14 @@
 @section('content')
 
 {{-- Sambutan --}}
-<div class="welcome">
-    <h1>Selamat datang, {{ auth()->user()->name }}!</h1>
-    <p>Semoga hari ini penuh dengan kesuksesan <span class="heart">♥</span></p>
+<div class="welcome welcome-flex">
+    <div>
+        <h1>Selamat datang, {{ auth()->user()->name }}!</h1>
+        <p>Semoga hari ini penuh dengan kesuksesan <span class="heart">♥</span></p>
+    </div>
+    <p class="hero-quote">Belanja cantik<br>jadi lebih mudah <span>♥</span></p>
 </div>
-
+    
 {{-- Kartu statistik --}}
 <div class="stat-grid">
 
@@ -39,7 +42,11 @@
         <div class="stat-body">
             <span class="stat-label">Stok Menipis</span>
             <strong class="stat-value">{{ $stats['stok_menipis'] }}</strong>
-            <span class="stat-note warn"><i class="dot-orange"></i> Perlu segera restock</span>
+            @if ($stats['stok_menipis'] > 0)
+                <span class="stat-note warn"><i class="dot-orange"></i> Perlu segera restock</span>
+            @else
+                <span class="stat-note up">Semua stok aman</span>
+            @endif
         </div>
     </div>
 
@@ -52,7 +59,9 @@
         <div class="stat-body">
             <span class="stat-label">Transaksi Hari Ini</span>
             <strong class="stat-value">{{ $stats['transaksi_hari_ini'] }}</strong>
-            <span class="stat-note up">▲ +{{ $stats['transaksi_selisih'] }} dari kemarin</span>
+            <span class="stat-note {{ $stats['transaksi_selisih'] >= 0 ? 'up' : 'down' }}">
+                {{ $stats['transaksi_selisih'] >= 0 ? '▲ +' : '▼ ' }}{{ $stats['transaksi_selisih'] }} dari kemarin
+            </span>
         </div>
     </div>
 
@@ -65,7 +74,13 @@
         <div class="stat-body">
             <span class="stat-label">Total Penjualan (Hari Ini)</span>
             <strong class="stat-value">Rp {{ number_format($stats['penjualan_hari_ini'], 0, ',', '.') }}</strong>
-            <span class="stat-note up">▲ +{{ $stats['penjualan_persen'] }}% dari kemarin</span>
+            @if ($stats['penjualan_persen'] === null)
+            <span class="stat-note">Belum ada data kemarin</span>
+            @else
+            <span class="stat-note {{ $stats['penjualan_persen'] >= 0 ? 'up' : 'down' }}">
+                {{ $stats['penjualan_persen'] >= 0 ? '▲ +' : '▼ ' }}{{ $stats['penjualan_persen'] }}% dari kemarin
+            </span>
+            @endif
         </div>
     </div>
 
@@ -76,12 +91,14 @@
 
     <section class="panel">
         <div class="panel-head">
-            <h2>Grafik Penjualan 7 Hari Terakhir</h2>
-            <select class="range-select" enabled>
-                <option>1 Hari</option>
-                <option>7 Hari Terakhir</option>
-                <option>30 Hari Terakhir</option>
-            </select>
+            <h2>{{ $grafik['judul'] }}</h2>
+            <form method="GET" action="{{ route('admin.dashboard') }}">
+                <select name="periode" class="range-select" onchange="this.form.submit()">
+                    <option value="1"  @selected($grafik['periode'] === '1')>1 Hari</option>
+                    <option value="7"  @selected($grafik['periode'] === '7')>7 Hari Terakhir</option>
+                    <option value="30" @selected($grafik['periode'] === '30')>30 Hari Terakhir</option>
+                </select>
+            </form>
         </div>
         <div class="chart-wrap">
             <canvas id="salesChart"></canvas>
@@ -93,7 +110,7 @@
             <h2>Produk Terlaris</h2>
         </div>
         <ul class="top-list">
-            @foreach ($produkTerlaris as $i => $p)
+            @forelse ($produkTerlaris as $i => $p)
                 <li>
                     <span class="rank">{{ $i + 1 }}</span>
 
@@ -110,7 +127,9 @@
                     <span class="top-name">{{ $p['nama'] }}</span>
                     <span class="top-qty">{{ $p['terjual'] }}</span>
                 </li>
-            @endforeach
+                @empty
+                 <li class="empty-li">Belum ada penjualan 7 hari terakhir.</li>
+            @endforelse
         </ul>
     </section>
 
@@ -133,8 +152,9 @@
     // Format sumbu Y: 500Rb, 1.0Jt, dst.
     function formatRupiah(v) {
         if (v === 0) return '0';
-        if (v >= 1000000) return (v / 1000000).toFixed(1) + 'Jt';
-        return (v / 1000) + 'Rb';
+        if (v >= 1000000) return (v / 1000000).toFixed(1).replace('.', ',') + 'Jt';
+        if (v >= 1000)    return Math.round(v / 1000) + 'Rb';
+        return '';   // nilai di bawah 1.000 tidak ditampilkan
     }
 
     new Chart(ctx, {
@@ -149,7 +169,7 @@
                 fill: true,
                 tension: 0.4,
                 pointBackgroundColor: '#c2456e',
-                pointRadius: 4,
+                pointRadius: labels.length > 15 ? 0 : 4,
                 pointHoverRadius: 6,
             }]
         },
@@ -167,13 +187,14 @@
             scales: {
                 y: {
                     beginAtZero: true,
+                    suggestedMax: Math.max(...data) === 0 ? 100000 : undefined,
                     ticks: { callback: formatRupiah, color: '#6b7280', font: { family: 'Poppins', size: 12 } },
                     grid: { color: '#f3e4e9' },
                     border: { display: false },
                 },
                 x: {
-                    ticks: { color: '#6b7280', font: { family: 'Poppins', size: 12 } },
-                    grid: { display: false },
+                    ticks: { color: '#6b7280', font: { family: 'Poppins', size: 12 }, maxTicksLimit: 10 },
+                    grid: { display: '#f8eaee' },
                 }
             }
         }

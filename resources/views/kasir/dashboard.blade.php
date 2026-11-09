@@ -40,7 +40,6 @@
         ['Transaksi Baru', 'pos.index',      '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.7 12.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5L21 8H6"/>'],
         ['Cek Stok',       'kasir.stok',     '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>'],
         ['Laporan',        'kasir.laporan',  '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h6"/>'],
-        ['Profil Saya',    'kasir.profil',   '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>'],
     ];
 @endphp
 
@@ -159,7 +158,8 @@
     function formatRupiah(v) {
         if (v === 0) return '0';
         if (v >= 1000000) return (v / 1000000).toFixed(1).replace('.', ',') + 'Jt';
-        return (v / 1000) + 'Rb';
+        if (v >= 1000)    return Math.round(v / 1000) + 'Rb';
+        return '';   // nilai di bawah 1.000 tidak ditampilkan
     }
 
     new Chart(ctx, {
@@ -188,6 +188,7 @@
             scales: {
                 y: {
                     beginAtZero: true,
+                    suggestedMax: Math.max(...data) === 0 ? 100000 : undefined,
                     ticks: { callback: formatRupiah, color: '#6b7280', font: { family: 'Poppins', size: 12 } },
                     grid: { color: '#f3e4e9' },
                     border: { display: false },

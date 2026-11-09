@@ -375,3 +375,14 @@ a { text-decoration: none; color: inherit; }
 
 /* Isi sidebar tetap di atas daun */
 .sidebar > * { position: relative; z-index: 1; }
+
+.notif-all {
+    display: block;
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--pink-dark);
+}
+.notif-all:hover { background: var(--pink-soft); }

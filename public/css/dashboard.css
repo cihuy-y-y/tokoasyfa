@@ -117,3 +117,34 @@
     .stat-grid { grid-template-columns: 1fr; }
     .chart-wrap { height: 260px; }
 }
+
+.stat-note.down { color: #dc2626; }
+.empty-li { justify-content: center; padding: 30px 0 !important; color: #9ca3af; font-size: 14px; border-bottom: none !important; }
+
+/* ===== Sambutan + quote ===== */
+.welcome-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.welcome .hero-quote {
+    margin-top: 0;
+    font-family: 'Great Vibes', cursive;
+    font-size: 30px;
+    line-height: 1.1;
+    color: var(--pink);
+    text-align: right;
+    transform: rotate(-4deg);
+}
+.welcome .hero-quote span {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    color: #e0587f;
+}
+
+@media (max-width: 600px) {
+    .welcome .hero-quote { display: none; }
+}

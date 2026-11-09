@@ -75,7 +75,6 @@ class UserManagementController extends Controller
             'name'     => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'alpha_dash', 'min:4', 'max:50', Rule::unique('users', 'username')->ignore($user->id)],
             'email'    => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'status'   => ['required', Rule::in(['approved', 'pending', 'rejected'])],
             'role'     => ['required_if:status,approved', 'nullable', Rule::in(['admin', 'kasir'])],
             'password' => ['nullable', 'string', 'min:8'],
         ], $this->messages());
@@ -84,9 +83,9 @@ class UserManagementController extends Controller
             'name'     => $data['name'],
             'username' => $data['username'],
             'email'    => $data['email'],
-            'status'   => $data['status'],
+            'status'   => $user['status'],
             // Role hanya berlaku untuk akun aktif
-            'role'     => $data['status'] === 'approved' ? $data['role'] : null,
+            'role'     => $user['status'] === 'approved' ? $data['role'] : $user -> role,
         ];
 
         if (! empty($data['password'])) {

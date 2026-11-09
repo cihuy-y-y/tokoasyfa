@@ -38,11 +38,13 @@ class ProductController extends Controller
 
         // Ringkasan (dari seluruh barang, tidak terpengaruh filter)
         $totalProduk = Product::count();
-        $menipis     = Product::menipis()->count();
+        $habis       = Product::where('stok', 0)->count();
+        $menipis     = Product::where('stok', '>', 0)->menipis()->count();
         $summary = [
-            'total'    => $totalProduk,
-            'menipis'  => $menipis,
-            'aman'     => $totalProduk - $menipis,
+            'total'      => $totalProduk,
+            'menipis'    => $menipis,
+            'habis'      => $habis,
+            'aman'       => $totalProduk - $menipis - $habis,
             'total_stok' => (int) Product::sum('stok'),
         ];
 

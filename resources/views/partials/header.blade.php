@@ -69,6 +69,7 @@
                         <li class="notif-empty">Tidak ada notifikasi.</li>
                     @endforelse
                 </ul>
+                <a href="{{ route('notifikasi.index') }}" class="notif-all">Lihat semua notifikasi →</a>
             </div>
         </div>
 

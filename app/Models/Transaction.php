@@ -8,10 +8,12 @@ use Carbon\Carbon;
 
 class Transaction extends Model
 {
-    public const METODE = ['QRIS', 'Transfer Bank', 'E-Wallet', 'COD', 'Tunai'];
+    public const METODE = ['QRIS', 'Transfer Bank', 'E-Wallet', 'Tunai'];
     public const STATUS = ['lunas' => 'Lunas', 'pending' => 'Pending', 'batal' => 'Batal'];
 
-    protected $fillable = ['kode', 'user_id', 'tanggal', 'metode', 'status', 'total'];
+    protected $fillable = [
+    'kode', 'user_id', 'tanggal', 'metode', 'status', 'total',
+    'subtotal', 'diskon_persen', 'diskon_nominal', 'bayar', 'kembali',];
 
     protected $casts = ['tanggal' => 'datetime'];
 

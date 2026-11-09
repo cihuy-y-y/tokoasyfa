@@ -3,7 +3,6 @@
         'metode_qris'     => 'QRIS',
         'metode_transfer' => 'Transfer Bank',
         'metode_ewallet'  => 'E-Wallet',
-        'metode_cod'      => 'COD (Bayar di Tempat)',
         'metode_tunai'    => 'Tunai',
     ];
 @endphp

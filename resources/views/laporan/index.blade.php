@@ -131,7 +131,6 @@
                             <span class="top-name">{{ $p->nama_produk }}</span>
                             <span class="top-qty">{{ $p->terjual }} pcs</span>
                         </div>
-                        <div class="bar"><span style="width: {{ round($p->terjual / $maxTerjual * 100) }}%"></span></div>
                     </div>
                 </li>
             @empty
@@ -362,7 +361,8 @@
     function formatRupiah(v) {
         if (v === 0) return '0';
         if (v >= 1000000) return (v / 1000000).toFixed(1).replace('.', ',') + 'Jt';
-        return (v / 1000) + 'Rb';
+        if (v >= 1000)    return Math.round(v / 1000) + 'Rb';
+        return '';   // nilai di bawah 1.000 tidak ditampilkan
     }
 
     new Chart(ctx, {
@@ -391,13 +391,14 @@
             scales: {
                 y: {
                     beginAtZero: true,
+                    suggestedMax: Math.max(...data) === 0 ? 100000 : undefined,
                     ticks: { callback: formatRupiah, color: '#6b7280', font: { family: 'Poppins', size: 12 } },
                     grid: { color: '#f3e4e9' },
                     border: { display: false },
                 },
                 x: {
                     ticks: { color: '#6b7280', font: { family: 'Poppins', size: 12 }, maxTicksLimit: 10 },
-                    grid: { display: false },
+                    grid: { display: '#f3e4e9' },
                 }
             }
         }

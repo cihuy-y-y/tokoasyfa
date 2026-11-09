@@ -1,0 +1,106 @@
+/* ===== Judul ===== */
+.page-ico.round { border-radius: 50%; }
+.stok-clock {
+    padding: 10px 18px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fff;
+    font-size: 14px;
+}
+
+/* ===== Layout dua kolom ===== */
+.stok-grid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 20px; align-items: start; }
+.stok-grid > * { min-width: 0; }
+.h-sm { font-size: 18px !important; }
+
+.range-select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 13px;
+}
+
+/* ===== Tab kategori ===== */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.chip {
+    padding: 7px 18px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 12.5px;
+    color: #4b5563;
+}
+.chip:hover { background: var(--pink-soft); }
+.chip.active { background: var(--pink); border-color: var(--pink); color: #fff; }
+
+/* ===== Tabel ===== */
+.stok-table { min-width: 680px !important; }
+.p-thumb.sm { width: 40px; height: 40px; }
+.p-thumb.sm svg { width: 20px; height: 20px; }
+
+/* ===== Panel kanan ===== */
+.stok-side { display: flex; flex-direction: column; gap: 18px; }
+.side-card { padding: 18px; }
+.side-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+.side-card h3:not(:first-child) { margin-top: 16px; }
+.panel-head.tight { margin-bottom: 8px; }
+.panel-head.tight h3 { margin: 0; }
+
+.side-search { display: flex; gap: 8px; }
+.side-search input {
+    flex: 1; min-width: 0; height: 38px; padding: 0 12px;
+    border: 1px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 13px;
+}
+.side-search input:focus { outline: none; border-color: var(--pink); }
+.side-search button {
+    padding: 0 16px; border: none; border-radius: 8px;
+    background: var(--pink); color: #fff;
+    font-family: inherit; font-size: 13px; cursor: pointer;
+}
+.side-search button:hover { background: var(--pink-dark); }
+
+.side-check { display: flex; flex-direction: column; gap: 9px; }
+.side-check label { display: flex; align-items: center; gap: 10px; font-size: 13.5px; cursor: pointer; }
+.side-check input { width: 16px; height: 16px; accent-color: var(--pink); cursor: pointer; }
+
+.side-actions { display: flex; gap: 8px; margin-top: 16px; }
+.btn-terapkan {
+    flex: 1; height: 38px; border: none; border-radius: 8px;
+    background: var(--pink); color: #fff;
+    font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer;
+}
+.btn-terapkan:hover { background: var(--pink-dark); }
+.btn-reset-sm {
+    display: flex; align-items: center; padding: 0 16px;
+    border-radius: 8px; background: #fde8ee; color: var(--pink-dark);
+    font-size: 13px; font-weight: 500;
+}
+
+/* ===== Produk menipis ===== */
+.low-list { list-style: none; }
+.low-list li { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f8eaee; }
+.low-list li:last-child { border-bottom: none; }
+.p-thumb.xs { width: 34px; height: 34px; border-radius: 8px; }
+.p-thumb.xs svg { width: 17px; height: 17px; }
+.low-name { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.low-stok { padding: 3px 10px; border-radius: 6px; background: #fdefd3; color: #b45309; font-size: 11.5px; font-weight: 500; white-space: nowrap; }
+.low-stok.zero { background: #fee2e2; color: #dc2626; }
+.low-empty { justify-content: center; padding: 20px 0 !important; color: #9ca3af; font-size: 13px; }
+
+/* ===== Tips ===== */
+.side-tip {
+    display: flex; gap: 12px; padding: 16px;
+    border-radius: 14px; background: linear-gradient(120deg, #fde4ec, #fff0f4);
+    border: 1px solid var(--border);
+}
+.tip-ico { font-size: 26px; }
+.side-tip strong { font-size: 13px; }
+.side-tip p { margin-top: 4px; font-size: 12px; line-height: 1.5; color: #4b5563; }
+
+/* ===== Responsif ===== */
+@media (max-width: 1100px) {
+    .stok-grid { grid-template-columns: 1fr; }
+}

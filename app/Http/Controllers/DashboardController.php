@@ -2,44 +2,96 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use App\Models\Transaction;
+use App\Models\TransactionItem;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // ====== DATA CONTOH (nanti ganti dengan query database) ======
+        // ---- Kartu ringkasan ----
+        $hariIni = fn () => Transaction::lunas()->whereDate('tanggal', today());
+        $kemarin = fn () => Transaction::lunas()->whereDate('tanggal', today()->subDay());
+
+        $penjualanHariIni = (int) $hariIni()->sum('total');
+        $penjualanKemarin = (int) $kemarin()->sum('total');
+        $trxHariIni       = (int) $hariIni()->count();
+        $trxKemarin       = (int) $kemarin()->count();
+
         $stats = [
-            'total_produk'      => 120,
-            'produk_baru'       => 2,       // dari bulan lalu
-            'stok_menipis'      => 8,
-            'transaksi_hari_ini'=> 5,
-            'transaksi_selisih' => 2,       // dari kemarin
-            'penjualan_hari_ini'=> 1250000,
-            'penjualan_persen'  => 15,      // dari kemarin
+            'total_produk'       => Product::count(),
+            'produk_baru'        => Product::where('created_at', '>=', now()->startOfMonth())->count(),
+            'stok_menipis'       => Product::menipis()->count(),
+            'transaksi_hari_ini' => $trxHariIni,
+            'transaksi_selisih'  => $trxHariIni - $trxKemarin,
+            'penjualan_hari_ini' => $penjualanHariIni,
+            'penjualan_persen'   => $penjualanKemarin > 0
+                ? (int) round(($penjualanHariIni - $penjualanKemarin) / $penjualanKemarin * 100)
+                : null,   // null = kemarin kosong, tidak ada pembanding
         ];
 
-        // Penjualan 7 hari terakhir (urut dari 6 hari lalu sampai hari ini)
-        $nilaiPenjualan = [650000, 550000, 880000, 1050000, 1450000, 1200000, 1500000];
+        // ---- Grafik penjualan sesuai periode ----
+        $periode = in_array($request->query('periode'), ['1', '7', '30'], true)
+            ? $request->query('periode') : '7';
 
-        $labels = [];
-        foreach (range(6, 0) as $i) {
-            $labels[] = now()->subDays($i)->locale('id')->translatedFormat('j M');
+        $dari = today();   // dipakai juga oleh Produk Terlaris di bawah
+
+        if ($periode === '1') {
+            // Per jam, hari ini
+            $perJam = Transaction::lunas()
+                ->whereDate('tanggal', today())
+                ->selectRaw('HOUR(tanggal) as jam, SUM(total) as total')
+                ->groupBy('jam')
+                ->pluck('total', 'jam');
+
+            $labels = [];
+            $data   = [];
+            foreach (range(0, 23) as $j) {
+                $labels[] = str_pad($j, 2, '0', STR_PAD_LEFT) . ':00';
+                $data[]   = (int) ($perJam[$j] ?? 0);
+            }
+            $judul = 'Grafik Penjualan Hari Ini';
+        } else {
+            $hari = (int) $periode;
+            $dari = today()->subDays($hari - 1);
+
+            $perHari = Transaction::lunas()
+                ->whereBetween('tanggal', [$dari->copy()->startOfDay(), today()->endOfDay()])
+                ->selectRaw('DATE(tanggal) as hari, SUM(total) as total')
+                ->groupBy('hari')
+                ->pluck('total', 'hari');
+
+            $labels = [];
+            $data   = [];
+            foreach (CarbonPeriod::create($dari, today()) as $d) {
+                $labels[] = $d->copy()->locale('id')->translatedFormat('j M');
+                $data[]   = (int) ($perHari[$d->format('Y-m-d')] ?? 0);
+            }
+            $judul = "Grafik Penjualan {$hari} Hari Terakhir";
         }
 
-        $grafik = [
-            'labels' => $labels,
-            'data'   => $nilaiPenjualan,
-        ];
+        $grafik = ['labels' => $labels, 'data' => $data, 'judul' => $judul, 'periode' => $periode];
 
-        // gambar: nama file di public/images/produk/ (boleh null)
-        $produkTerlaris = [
-            ['nama' => 'Wardah Lightening Moisturizer', 'terjual' => 25, 'gambar' => 'wardah.png',    'warna' => '#bfe3f2'],
-            ['nama' => 'Maybelline Lipstick',           'terjual' => 18, 'gambar' => 'maybelline.png','warna' => '#f7c9d0'],
-            ['nama' => 'Focallure Face Wash',           'terjual' => 14, 'gambar' => 'focallure.png', 'warna' => '#f9d5dc'],
-            ['nama' => 'Emina Suncreen',                'terjual' => 14, 'gambar' => 'emina.png',     'warna' => '#fbe3a6'],
-            ['nama' => 'Somethinc Serum',               'terjual' => 12, 'gambar' => 'somethinc.png', 'warna' => '#d9d3f5'],
-        ];
+        // ---- Produk terlaris (7 hari terakhir) ----
+        $top = TransactionItem::selectRaw('nama_produk, SUM(jumlah) as terjual, MAX(product_id) as product_id')
+            ->whereHas('transaction', fn ($q) => $q->lunas()->periode(today()->subDays(6), today()))
+            ->groupBy('nama_produk')
+            ->orderByDesc('terjual')
+            ->limit(5)
+            ->get();
+
+        $gambar = Product::whereIn('id', $top->pluck('product_id')->filter())->pluck('gambar', 'id');
+        $warna  = ['#bfe3f2', '#f7c9d0', '#f9d5dc', '#fbe3a6', '#d9d3f5'];
+
+        $produkTerlaris = $top->values()->map(fn ($p, $i) => [
+            'nama'    => $p->nama_produk,
+            'terjual' => (int) $p->terjual,
+            'gambar'  => $gambar[$p->product_id] ?? null,
+            'warna'   => $warna[$i % count($warna)],
+        ])->all();
 
         return view('admin.dashboard', compact('stats', 'grafik', 'produkTerlaris'));
     }
