@@ -241,3 +241,14 @@
 @media (max-width: 600px) {
     .page-bar .hero-quote { display: none; }
 }
+/* ===== Impor backup ===== */
+.impor-warn {
+    margin-bottom: 18px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 13.5px;
+}
+.impor-warn ul { margin: 8px 0 0 20px; line-height: 1.8; }
+.impor-warn code { background: rgba(0, 0, 0, .07); padding: 1px 6px; border-radius: 4px; }

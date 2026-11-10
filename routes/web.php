@@ -89,6 +89,7 @@ Route::middleware(['auth', 'role:owner,admin'])->prefix('pengaturan')->name('pen
     Route::put('/preferensi', [PengaturanController::class, 'preferensi'])->name('preferensi');
     Route::put('/profil', [PengaturanController::class, 'updateProfil'])->name('profil');
     Route::put('/password', [PengaturanController::class, 'updatePassword'])->name('password');
+    Route::post('/impor', [PengaturanController::class, 'impor'])->name('impor');
 });
 
 // Pengaturan sensitif: hanya OWNER
