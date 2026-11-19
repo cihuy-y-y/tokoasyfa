@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'midtrans' => [
+    'server_key' => env('MIDTRANS_SERVER_KEY'),
+    'base_url'   => env('MIDTRANS_BASE_URL', 'https://api.sandbox.midtrans.com'),
+        ],
+
 ];

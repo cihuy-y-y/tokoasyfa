@@ -286,3 +286,5 @@ a.pg:hover { background: #fde8ee; }
     .form-grid { grid-template-columns: 1fr; }
     .filter-bar select { flex: 1; min-width: 140px; }
 }
+
+.st-menunggu { background: #e0f2fe; color: #0369a1; }

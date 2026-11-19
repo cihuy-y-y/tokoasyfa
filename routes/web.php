@@ -12,6 +12,7 @@ use App\Http\Controllers\KasirDashboardController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\KasirStokController;
 use App\Http\Controllers\KasirLaporanController;
+use App\Http\Controllers\MidtransWebhookController;
 
 Route::get('/', fn () => view('home'))->name('home');
 
@@ -67,6 +68,9 @@ Route::middleware(['auth', 'role:owner,admin'])->group(function () {
 Route::middleware(['auth', 'role:owner,kasir'])->group(function () {
     Route::get('/pos', [PosController::class, 'index'])->name('pos.index');
     Route::post('/pos', [PosController::class, 'store'])->name('pos.store');
+    Route::post('/pos/online', [PosController::class, 'online'])->name('pos.online');
+    Route::get('/pos/status/{transaction}', [PosController::class, 'status'])->name('pos.status');
+    Route::post('/pos/batal/{transaction}', [PosController::class, 'batal'])->name('pos.batal');
 });
 
 Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->group(function () {

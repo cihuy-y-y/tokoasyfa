@@ -226,3 +226,8 @@
 @media (max-width: 600px) {
     .pos-actions { flex-direction: column; }
 }
+
+.qr-wrap { display: flex; justify-content: center; padding: 14px; margin-bottom: 10px; border-radius: 12px; background: #fff; border: 1px solid var(--border); }
+.qr-status { text-align: center; font-weight: 600; color: var(--pink-dark); }
+.qr-timer { margin: 4px 0 14px; text-align: center; font-size: 13px; color: var(--muted); }
+.qr-cancel { display: block; width: 100%; }

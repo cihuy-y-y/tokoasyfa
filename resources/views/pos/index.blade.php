@@ -13,7 +13,6 @@
 @php
     $ikonMetode = [
         'QRIS'          => '<path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3v3h-3zM20 14v3M14 20h3M20 20h1"/>',
-        'Transfer Bank' => '<path d="M3 10 12 4l9 6M5 10v8M9 10v8M15 10v8M19 10v8M3 20h18"/>',
         'E-Wallet'      => '<path d="M3 7a2 2 0 0 1 2-2h12v4M3 7v11a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5a2 2 0 0 1-2-2zM16 14h2"/>',
         'COD'           => '<path d="M1 6h13v10H1zM14 9h4l3 3v4h-7"/><circle cx="5.5" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/>',
         'Tunai'         => '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/>',
@@ -151,7 +150,14 @@
             </div>
         </div>
 
-        <div class="modal-foot">
+        <div id="onlineBox" style="display:none">
+            <div class="qr-wrap"><div id="qrCanvas"></div></div>
+            <p class="qr-status" id="qrStatus">Menunggu pembayaran...</p>
+            <p class="qr-timer">Kedaluwarsa dalam <b id="qrTimer">15:00</b></p>
+            <button type="button" class="btn-cancel qr-cancel" id="btnBatalOnline">Batalkan Pembayaran</button>
+        </div>
+
+        <div class="modal-foot" id="payFoot">
             <button type="button" class="btn-cancel" data-close>Batal</button>
             <button type="button" class="btn-add" id="btnKonfirmasi">Konfirmasi &amp; Simpan</button>
         </div>
@@ -179,11 +185,15 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
     // ===== Data dari server =====
     const PRODUK    = @json($produk);
     const INFO      = @json($info);
     const STORE_URL = @json(route('pos.store'));
+    const ONLINE     = ['QRIS', 'E-Wallet'];
+    const ONLINE_URL = @json(route('pos.online'));
+    let poll = null, tick = null;
     const CSRF      = @json(csrf_token());
     const byId      = Object.fromEntries(PRODUK.map(p => [p.id, p]));
 
@@ -365,10 +375,8 @@
         $('payMetode').textContent = metode;
 
         const info = {
-            'Transfer Bank': INFO.bank    ? 'Rekening tujuan: ' + INFO.bank : 'Rekening belum diatur di Pengaturan.',
-            'E-Wallet':      INFO.ewallet ? 'Nomor e-wallet: ' + INFO.ewallet : 'Nomor e-wallet belum diatur di Pengaturan.',
-            'QRIS':          'Minta pelanggan memindai QRIS toko, lalu konfirmasi setelah pembayaran diterima.',
-            'COD':           'Pastikan uang pembayaran sudah diterima dari pelanggan atau kurir.',
+            'QRIS':     'Kode QRIS dibuat sesuai total. Terkonfirmasi otomatis setelah dibayar.',
+            'E-Wallet': 'Pelanggan memindai kode dengan GoPay. Terkonfirmasi otomatis.',
         }[metode] || '';
         $('payInfo').textContent   = info;
         $('payInfo').style.display = info ? '' : 'none';
@@ -396,6 +404,10 @@
             });
         }
 
+        $('btnKonfirmasi').textContent = ONLINE.includes(metode) ? 'Buat Kode Pembayaran' : 'Konfirmasi & Simpan';
+        $('onlineBox').style.display = 'none';
+        $('payFoot').style.display   = ''; 
+           
         hitungKembali();
         $('payModal').classList.add('show');
         if (tunai) $('uangDiterima').focus();
@@ -412,13 +424,79 @@
     $('btnProses').addEventListener('click', bukaBayar);
 
     // ===== Simpan transaksi =====
+    function stopOnline() { clearInterval(poll); clearInterval(tick); poll = tick = null; }
+
+    function selesai(json) {
+        stopOnline();
+        Object.entries(cart).forEach(([id, q]) => byId[id].stok -= q);
+        cart = {};
+        $('diskon').value = 0;
+        strukTerakhir = json.struk_url;
+
+        $('okKode').textContent    = json.kode;
+        $('okTotal').textContent   = rp(json.total);
+        $('okKembali').textContent = rp(json.kembali);
+
+        closeAll();
+        $('okModal').classList.add('show');
+        renderProduk();
+        renderCart();
+    }
+
+    function mulaiOnline(json) {
+        $('tunaiBox').style.display  = 'none';
+        $('payInfo').style.display   = 'none';
+        $('payFoot').style.display   = 'none';
+        $('onlineBox').style.display = '';
+        $('qrStatus').textContent    = 'Menunggu pembayaran...';
+        console.log('Respons pembayaran Midtrans:', json);
+        console.log('QR String:', json.qr_string);
+        console.log('QR URL:', json.qr_url);
+
+        $('qrCanvas').innerHTML = '';
+        if (json.qr_string) {
+            new QRCode($('qrCanvas'), { text: json.qr_string, width: 220, height: 220 });
+        } else if (json.qr_url) {
+            $('qrCanvas').innerHTML = `<img src="${esc(json.qr_url)}" width="220" height="220" alt="QR">`;
+        }
+
+        let sisa = json.sisa_detik;
+        const tampil = () => {
+            const m = String(Math.floor(sisa / 60)).padStart(2, '0'), s = String(sisa % 60).padStart(2, '0');
+            $('qrTimer').textContent = `${m}:${s}`;
+        };
+        tampil();
+        tick = setInterval(() => { sisa = Math.max(0, sisa - 1); tampil(); }, 1000);
+
+        poll = setInterval(async () => {
+            try {
+                const r = await fetch(json.status_url, { headers: { 'Accept': 'application/json' } });
+                const d = await r.json();
+                if (d.status === 'lunas') {
+                    selesai(d);
+                } else if (d.status === 'batal') {
+                    stopOnline(); closeAll();
+                    toast('Pembayaran dibatalkan atau kedaluwarsa', true);
+                }
+            } catch (e) { /* coba lagi pada putaran berikutnya */ }
+        }, 3000);
+
+        $('btnBatalOnline').onclick = async () => {
+            stopOnline();
+            await fetch(json.batal_url, { method: 'POST', headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF } });
+            closeAll();
+            toast('Pembayaran dibatalkan');
+        };
+    }
+
     $('btnKonfirmasi').addEventListener('click', async () => {
-        const btn = $('btnKonfirmasi'), h = hitung();
+        const btn = $('btnKonfirmasi'), h = hitung(), online = ONLINE.includes(metode);
+        const label = online ? 'Buat Kode Pembayaran' : 'Konfirmasi & Simpan';
         btn.disabled = true;
         btn.textContent = 'Memproses...';
 
         try {
-            const res = await fetch(STORE_URL, {
+            const res = await fetch(online ? ONLINE_URL : STORE_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': CSRF },
                 body: JSON.stringify({
@@ -431,29 +509,15 @@
             const json = await res.json().catch(() => ({}));
 
             if (!res.ok) {
-                const pesan = json.errors ? Object.values(json.errors)[0][0] : (json.message || 'Gagal memproses transaksi.');
-                toast(pesan, true);
+                toast(json.errors ? Object.values(json.errors)[0][0] : (json.message || 'Gagal memproses transaksi.'), true);
                 return;
             }
 
-            // Sinkronkan stok di layar, lalu kosongkan keranjang
-            Object.entries(cart).forEach(([id, q]) => byId[id].stok -= q);
-            cart = {};
-            $('diskon').value = 0;
-            strukTerakhir = json.struk_url;
-
-            $('okKode').textContent    = json.kode;
-            $('okTotal').textContent   = rp(json.total);
-            $('okKembali').textContent = rp(json.kembali);
-
-            closeAll();
-            $('okModal').classList.add('show');
-            renderProduk();
-            renderCart();
+            online ? mulaiOnline(json) : selesai(json);
         } catch (err) {
             toast('Koneksi bermasalah. Coba lagi.', true);
         } finally {
-            btn.textContent = 'Konfirmasi & Simpan';
+            btn.textContent = label;
             hitungKembali();
         }
     });
