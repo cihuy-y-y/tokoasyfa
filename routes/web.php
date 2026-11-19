@@ -89,13 +89,13 @@ Route::middleware(['auth', 'role:owner,admin'])->prefix('pengaturan')->name('pen
     Route::put('/preferensi', [PengaturanController::class, 'preferensi'])->name('preferensi');
     Route::put('/profil', [PengaturanController::class, 'updateProfil'])->name('profil');
     Route::put('/password', [PengaturanController::class, 'updatePassword'])->name('password');
-    Route::post('/impor', [PengaturanController::class, 'impor'])->name('impor');
 });
 
 // Pengaturan sensitif: hanya OWNER
 Route::middleware(['auth', 'role:owner'])->prefix('pengaturan')->name('pengaturan.')->group(function () {
     Route::put('/pembayaran', [PengaturanController::class, 'updatePembayaran'])->name('pembayaran');
     Route::get('/backup', [PengaturanController::class, 'backup'])->name('backup');
+    Route::post('/impor', [PengaturanController::class, 'impor'])->name('impor');
 });
 
 // Area KASIR

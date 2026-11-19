@@ -10,11 +10,58 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\auth;
+use Illuminate\Support\Facades\Auth;
 
 class PengaturanController extends Controller
 {
-        private const PREF_KEYS = ['notif_transaksi', 'notif_stok_menipis','notif_stok_habis', 'notif_laporan', 'tema_warna', 'mode_tampilan'];
+    private const PREF_KEYS = [
+        'tema_warna',
+        'notif_transaksi',
+        'notif_stok_menipis',
+        'notif_stok_habis',
+        'notif_laporan',
+    ];
+
+    public function preferensi(Request $request)
+{
+    $validated = $request->validate([
+        'key' => ['required', 'string', Rule::in(self::PREF_KEYS)],
+        'value' => ['required', 'string'],
+    ]);
+
+    $key = $validated['key'];
+    $value = $validated['value'];
+
+    // Validasi tema warna
+    if ($key === 'tema_warna' && !array_key_exists($value, Setting::TEMA)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Tema warna tidak valid.'
+        ], 422);
+    }
+
+    // Validasi notifikasi
+    $notifKeys = [
+        'notif_transaksi',
+        'notif_stok_menipis',
+        'notif_stok_habis',
+        'notif_laporan',
+    ];
+
+    if (in_array($key, $notifKeys, true) && !in_array($value, ['0', '1'], true)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Nilai notifikasi tidak valid.'
+        ], 422);
+    }
+
+    Setting::simpan($key, $value);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Preferensi berhasil disimpan.'
+    ]);
+}
 
     public function index(Request $request)
     {
@@ -61,57 +108,6 @@ class PengaturanController extends Controller
         Setting::simpanBanyak($data);
 
         return redirect()->route('pengaturan.index')->with('success', 'Informasi toko berhasil diperbarui.');
-    }
-
-    public function uploadGambar(Request $request, string $jenis)
-    {
-        $maks = $jenis === 'logo' ? 2048 : 5120; // KB
-
-        $request->validate([
-            'gambar' => ['required', 'image', 'mimes:jpg,jpeg,png', 'max:' . $maks],
-        ], [
-            'gambar.required' => 'Pilih file gambar terlebih dahulu.',
-            'gambar.image'    => 'File harus berupa gambar.',
-            'gambar.mimes'    => 'Format gambar harus JPG atau PNG.',
-            'gambar.max'      => 'Ukuran gambar maksimal ' . ($maks / 1024) . ' MB.',
-            'gambar.uploaded' => 'Gagal mengunggah. Ukuran file melebihi batas server (cek upload_max_filesize di php.ini).',
-        ]);
-
-        $lama = Setting::ambil($jenis);
-        $file = $request->file('gambar');
-        $nama = $jenis . '-' . Str::random(12) . '.' . $file->extension();
-
-        $file->move(public_path('images/toko'), $nama);
-
-        if ($lama) {
-            File::delete(public_path('images/toko/' . $lama));
-        }
-
-        Setting::simpan($jenis, $nama);
-
-        return redirect()->route('pengaturan.index')
-            ->with('success', ($jenis === 'logo' ? 'Logo' : 'Banner') . ' berhasil diganti.');
-    }
-
-    // Simpan otomatis (dipanggil lewat fetch dari toggle, tema, dan mode)
-    public function preferensi(Request $request)
-    {
-        $data = $request->validate([
-            'key'   => ['required', Rule::in(self::PREF_KEYS)],
-            'value' => ['required', 'string'],
-        ]);
-
-        $boleh = match (true) {
-            str_starts_with($data['key'], 'notif_') => ['0', '1'],
-            $data['key'] === 'tema_warna'           => array_keys(Setting::TEMA),
-            default                                 => ['terang', 'gelap'],
-        };
-
-        abort_unless(in_array($data['value'], $boleh, true), 422, 'Nilai tidak valid.');
-
-        Setting::simpan($data['key'], $data['value']);
-
-        return response()->json(['ok' => true]);
     }
 
     // ===== Profil & Kata Sandi =====
@@ -186,32 +182,38 @@ class PengaturanController extends Controller
          // Nama tabel data (tanpa awalan schema)
     private function tabelData(): array
     {
-        return collect(Schema::getTableListing())
+        $db = DB::connection('mysql');
+
+        return collect($db->getSchemaBuilder()->getTableListing())
             ->map(fn ($t) => Str::afterLast($t, '.'))
             ->reject(fn ($t) => in_array($t, self::LEWATI, true))
-            ->values()->all();
+            ->unique()
+            ->filter(fn ($t) => $db->getSchemaBuilder()->hasTable($t))
+            ->values()
+            ->all();
     }
 
     // Menulis isi backup lewat callback (dipakai untuk unduhan dan cadangan otomatis)
     private function tulisDump(callable $tulis): void
     {
-        $pdo = DB::getPdo();
+        $db = DB::connection('mysql');
+        $pdo = $db->getPdo();
 
         $tulis("-- Backup Toko Kosmetik Asya\n-- Dibuat: " . now()->format('d/m/Y H:i:s') . "\n\n");
         $tulis("SET FOREIGN_KEY_CHECKS=0;\n\n");
 
         foreach ($this->tabelData() as $tabel) {
-            $tulis("-- Tabel: {$tabel}\n");
+            $tulis("-- Tabel: {$tabel}\n"); 
 
-            foreach (DB::table($tabel)->cursor() as $baris) {
+            foreach ($db->table($tabel)->cursor() as $baris) {
                 $baris = (array) $baris;
-                $kolom = implode(', ', array_map(fn ($c) => '' . $c . '', array_keys($baris)));
+                $kolom = implode(', ', array_map(fn ($c) => '`' . $c . '`', array_keys($baris)));
                 $nilai = implode(', ', array_map(
                     fn ($v) => $v === null ? 'NULL' : (is_int($v) || is_float($v) ? $v : $pdo->quote((string) $v)),
                     array_values($baris)
                 ));
 
-                $tulis("INSERT INTO {$tabel} ({$kolom}) VALUES ({$nilai});\n");
+                $tulis("INSERT INTO `{$tabel}` ({$kolom}) VALUES ({$nilai});\n");
             }
 
             $tulis("\n");
@@ -222,19 +224,64 @@ class PengaturanController extends Controller
 
     public function backup()
     {
-        abort_unless(DB::getDriverName() === 'mysql', 400, 'Backup hanya mendukung MySQL/MariaDB.');
-
-        Setting::simpan('last_backup_at', now()->toDateTimeString());
-
-        return response()->streamDownload(
-            function () {
-                $this->tulisDump(function ($s) { echo $s; });
-            },
-            'backup-asya-' . now()->format('Ymd-His') . '.sql',
-            ['Content-Type' => 'application/sql; charset=UTF-8']
+        abort_unless(
+            DB::getDriverName() === 'mysql',
+            400,
+            'Backup hanya mendukung MySQL/MariaDB.'
         );
-    }
 
+        set_time_limit(300);
+
+        $folder = storage_path('app/backups');
+
+        File::ensureDirectoryExists($folder);
+
+        $namaFile = 'backup-asya-' . now()->format('Ymd-His') . '.sql';
+
+        $path = $folder . DIRECTORY_SEPARATOR . $namaFile;
+
+        $handle = fopen($path, 'wb');
+
+        if ($handle === false) {
+            abort(500, 'Gagal membuat file backup.');
+        }
+
+        try {
+            $this->tulisDump(function ($isi) use ($handle) {
+                if (fwrite($handle, $isi) === false) {
+                    throw new \RuntimeException(
+                        'Gagal menulis file backup.'
+                    );
+                }
+            });
+
+            fflush($handle);
+
+        } catch (\Throwable $e) {
+
+            fclose($handle);
+
+            File::delete($path);
+
+            report($e);
+
+            throw $e;
+        }
+
+        fclose($handle);
+
+        Setting::simpan(
+            'last_backup_at',
+            now()->toDateTimeString()
+        );
+
+        return response()->download(
+            $path,
+            $namaFile,
+            ['Content-Type' => 'application/sql; charset=UTF-8']
+        )->deleteFileAfterSend(true);
+    }
+    
     // ===== Impor / Restore (owner) =====
 
     public function impor(Request $request)
@@ -271,7 +318,7 @@ class PengaturanController extends Controller
                 continue;   // diatur sendiri oleh proses impor
             }
 
-            if (! preg_match('/^INSERT INTO ["]?([A-Za-z0-9_]+)["]? \(/', $stmt, $m) || ! in_array($m[1], $izin, true)) {
+            if (! preg_match('/^INSERT\s+INTO\s+[`"]?([A-Za-z0-9_]+)[`"]?\s*\(/i', $stmt, $m) || ! in_array($m[1], $izin, true)) {
                 return back()->withErrors(['file' => 'File ditolak: berisi perintah yang tidak diizinkan.']);
             }
 
@@ -294,21 +341,21 @@ class PengaturanController extends Controller
 
         // ---- Pulihkan (semua-atau-tidak-sama-sekali) ----
         try {
-            DB::statement('SET FOREIGN_KEY_CHECKS=0');
-
-            DB::transaction(function () use ($tabel, $daftar) {
-                foreach (array_keys($tabel) as $t) {
-                    DB::table($t)->delete();
-                }
-                foreach ($daftar as $stmt) {
-                    DB::unprepared($stmt);
-                }
-            });
+            $db = DB::connection();   // satu koneksi yang sama untuk semua perintah
+            $db->statement('SET FOREIGN_KEY_CHECKS=0');
+        
+            foreach (array_keys($tabel) as $t) {
+                $db->statement('TRUNCATE TABLE `' . $t . '`');
+            }
+        
+            foreach ($daftar as $stmt) {
+                $db->unprepared($stmt);
+            }
         } catch (\Throwable $e) {
             report($e);
 
             return back()->withErrors([
-                'file' => 'Impor gagal dan data lama tidak diubah. ' . Str::limit($e->getMessage(), 200),
+                'file' => 'Impor gagal. Data lama bisa dipulihkan dari storage/app/backups. ' . Str::limit($e->getMessage(), 200),
             ]);
         } finally {
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
@@ -372,4 +419,3 @@ class PengaturanController extends Controller
         return $hasil;
     }
 }
-
