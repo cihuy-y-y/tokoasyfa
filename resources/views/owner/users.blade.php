@@ -96,7 +96,7 @@
             <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama, username, atau role...">
         </div>
 
-        <select name="role" onchange="this.form.submit()">
+        <select name="role" onchange="this.form.requestSubmit()">
             <option value="">Semua Role</option>
             <option value="admin" @selected(request('role') === 'admin')>Admin</option>
             <option value="kasir" @selected(request('role') === 'kasir')>Kasir</option>
@@ -286,6 +286,7 @@
 
 @push('scripts')
 <script>
+onPage(function () {
     // ===== Modal tambah / edit =====
     const modal       = document.getElementById('userModal');
     const form        = document.getElementById('userForm');
@@ -376,5 +377,6 @@
         updateBulk();
     });
     rowChecks().forEach(c => c.addEventListener('change', updateBulk));
+});
 </script>
 @endpush

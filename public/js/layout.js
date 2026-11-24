@@ -1,39 +1,37 @@
-// Sidebar versi mobile
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('overlay');
-const burger  = document.getElementById('burger');
+// Satu kali dipasang di document, jadi tetap jalan setelah Turbo mengganti isi <body>
+(function () {
+    if (window.__layoutInit) return;
+    window.__layoutInit = true;
 
-function toggleSidebar() {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('show');
-}
-burger.addEventListener('click', toggleSidebar);
-overlay.addEventListener('click', toggleSidebar);
+    const $ = id => document.getElementById(id);
 
-// Dropdown profil
-const profile    = document.getElementById('profile');
-const profileBtn = document.getElementById('profileBtn');
+    document.addEventListener('click', function (e) {
+        const sidebar = $('sidebar'), overlay = $('overlay');
+        const profile = $('profile'), notif = $('notif');
 
-profileBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    profile.classList.toggle('open');
-});
-document.addEventListener('click', (e) => {
-    if (!profile.contains(e.target)) profile.classList.remove('open');
-});
+        // Sidebar versi mobile
+        if (e.target.closest('#burger') || e.target.closest('#overlay')) {
+            sidebar && sidebar.classList.toggle('open');
+            overlay && overlay.classList.toggle('show');
+            return;
+        }
 
-// Panel notifikasi
-const notif    = document.getElementById('notif');
-const notifBtn = document.getElementById('notifBtn');
+        // Dropdown profil
+        if (e.target.closest('#profileBtn')) {
+            profile && profile.classList.toggle('open');
+            notif && notif.classList.remove('open');
+            return;
+        }
 
-if (notif && notifBtn) {
-    notifBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        notif.classList.toggle('open');
-        profile.classList.remove('open');   // tutup dropdown profil
+        // Panel notifikasi
+        if (e.target.closest('#notifBtn')) {
+            notif && notif.classList.toggle('open');
+            profile && profile.classList.remove('open');
+            return;
+        }
+
+        // Klik di luar: tutup panel
+        if (profile && !profile.contains(e.target)) profile.classList.remove('open');
+        if (notif && !notif.contains(e.target)) notif.classList.remove('open');
     });
-
-    document.addEventListener('click', (e) => {
-        if (!notif.contains(e.target)) notif.classList.remove('open');
-    });
-}
+})();

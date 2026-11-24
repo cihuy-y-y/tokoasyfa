@@ -45,7 +45,7 @@
 
     <p class="side-quote">Cantik<br>Setiap Hari<br>Bersama Asyfa <span>♥</span></p>
 
-    <form action="{{ route('logout') }}" method="POST" class="logout-form">
+    <form action="{{ route('logout') }}" method="POST" data-turbo="false" class="logout-form">
         @csrf
         <button type="submit" class="menu-item">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">

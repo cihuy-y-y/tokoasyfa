@@ -46,14 +46,14 @@
             <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari no. transaksi atau nama barang...">
         </div>
 
-        <select name="metode" onchange="this.form.submit()">
+        <select name="metode" onchange="this.form.requestSubmit()">
             <option value="">Semua Metode</option>
             @foreach ($metodeList as $m)
                 <option value="{{ $m }}" @selected(request('metode') === $m)>{{ $m }}</option>
             @endforeach
         </select>
 
-        <select name="status" onchange="this.form.submit()">
+        <select name="status" onchange="this.form.requestSubmit()">
             <option value="">Semua Status</option>
             @foreach ($statusList as $val => $label)
                 <option value="{{ $val }}" @selected(request('status') === $val)>{{ $label }}</option>
@@ -177,6 +177,7 @@
 
 @push('scripts')
 <script>
+onPage(function () {
     const rp = n => 'Rp ' + Number(n).toLocaleString('id-ID');
     const modal = document.getElementById('detailModal');
     const tutup = () => modal.classList.remove('show');
@@ -209,5 +210,6 @@
             modal.classList.add('show');
         });
     });
+});
 </script>
 @endpush

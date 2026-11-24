@@ -50,7 +50,7 @@
             <button type="submit" class="btn-range">Terapkan</button>
         </form>
 
-        <a href="{{ route('laporan.export', ['dari' => $tglFmt($dari), 'sampai' => $tglFmt($sampai)]) }}" class="btn-add">⬇ Download Laporan</a>
+        <a href="{{ route('laporan.export', ['dari' => $tglFmt($dari), 'sampai' => $tglFmt($sampai)]) }}" data-turbo="false" class="btn-add">⬇ Download Laporan</a>
     </div>
 </div>
 
@@ -155,21 +155,21 @@
             <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari no. transaksi, nama barang, atau kasir...">
         </div>
 
-        <select name="kasir" onchange="this.form.submit()">
+        <select name="kasir" onchange="this.form.requestSubmit()">
             <option value="">Semua Kasir</option>
             @foreach ($kasirList as $k)
                 <option value="{{ $k->id }}" @selected(request('kasir') == $k->id)>{{ $k->name }}</option>
             @endforeach
         </select>
 
-        <select name="metode" onchange="this.form.submit()">
+        <select name="metode" onchange="this.form.requestSubmit()">
             <option value="">Semua Metode</option>
             @foreach ($metodeList as $m)
                 <option value="{{ $m }}" @selected(request('metode') === $m)>{{ $m }}</option>
             @endforeach
         </select>
 
-        <select name="status" onchange="this.form.submit()">
+        <select name="status" onchange="this.form.requestSubmit()">
             <option value="">Semua Status</option>
             @foreach ($statusList as $val => $label)
                 <option value="{{ $val }}" @selected(request('status') === $val)>{{ $label }}</option>
@@ -177,7 +177,7 @@
         </select>
 
         <a href="{{ route('laporan.index', ['dari' => $tglFmt($dari), 'sampai' => $tglFmt($sampai)]) }}" class="btn-reset">↻ Reset</a>
-        <a href="{{ route('laporan.export', request()->query()) }}" class="btn-export">⬇ Export</a>
+        <a href="{{ route('laporan.export', request()->query()) }}" data-turbo="false" class="btn-export">⬇ Export</a>
     </form>
 
     <div class="table-wrap">
@@ -347,8 +347,8 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
+onPage(function () {
     // ===== Grafik penjualan =====
     const labels = @json($grafik['labels']);
     const data   = @json($grafik['data']);
@@ -473,5 +473,6 @@
             });
         });
     }
+});
 </script>
 @endpush

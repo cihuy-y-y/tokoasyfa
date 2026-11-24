@@ -18,7 +18,7 @@
             <li>Gambar produk, logo, dan banner <strong>tidak</strong> ikut, salin manual folder <code>public/images</code>.</li>
             <li>File memuat hash password pengguna, jadi simpan di tempat yang aman.</li>
         </ul>
-        <a href="{{ route('pengaturan.backup') }}" class="btn-add">⬇ Download Backup</a>
+        <a href="{{ route('pengaturan.backup') }}" data-turbo="false" class="btn-add">⬇ Download Backup</a>
     </div>
 </section>
 <section class="set-card form-card">
@@ -40,7 +40,7 @@
         </ul>
     </div>
 
-    <form action="{{ route('pengaturan.impor') }}" method="POST" enctype="multipart/form-data"
+    <form action="{{ route('pengaturan.impor') }}" method="POST" enctype="multipart/form-data" data-turbo="false"
           onsubmit="return confirm('Data saat ini akan diganti dengan isi file backup. Lanjutkan?')">
         @csrf
 

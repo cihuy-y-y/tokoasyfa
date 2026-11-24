@@ -386,3 +386,6 @@ a { text-decoration: none; color: inherit; }
     color: var(--pink-dark);
 }
 .notif-all:hover { background: var(--pink-soft); }
+
+/* ===== Turbo: bar tipis di atas halaman, hanya muncul jika loading > 0,5 detik ===== */
+.turbo-progress-bar { background: var(--pink); height: 3px; }

@@ -88,7 +88,7 @@
                     <strong>{{ $user->name }}</strong>
                     <small>{{ ucfirst($user->role) }} &middot; {{ $user->username }}</small>
                 </div>
-                <form action="{{ route('logout') }}" method="POST">
+                <form action="{{ route('logout') }}" method="POST" data-turbo="false">
                     @csrf
                     <button type="submit" class="dropdown-item">Logout</button>
                 </form>
