@@ -73,7 +73,7 @@ class AuthController extends Controller
         // Jika role tidak dikenali
         Auth::logout();
 
-        return redirect()->route('login')
+        return redirect()->route('home')
             ->withErrors(['username' => 'Role akun tidak dikenali.']);
         }
 
@@ -84,6 +84,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('home');
     }
 }
