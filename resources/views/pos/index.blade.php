@@ -195,8 +195,8 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
+onPage(function () {
     // ===== Data dari server =====
     const PRODUK    = @json($produk);
     const INFO      = @json($info);
@@ -233,7 +233,10 @@
         const d = new Date(), p = n => String(n).padStart(2, '0');
         $('posClock').textContent = `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} · ${p(d.getHours())}:${p(d.getMinutes())}`;
     }
-    jam(); setInterval(jam, 20000);
+    jam();
+    const jamTimer = setInterval(jam, 20000);
+    // Hentikan timer saat pindah halaman (Turbo tidak memuat ulang halaman)
+    document.addEventListener('turbo:before-render', () => { clearInterval(jamTimer); stopOnline(); }, { once: true });
 
     // ===== Daftar produk =====
     function renderProduk() {
@@ -565,5 +568,6 @@ if (autoId) {
     // ===== Mulai =====
     renderProduk();
     renderCart();
+});
 </script>
 @endpush

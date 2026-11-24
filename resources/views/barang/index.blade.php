@@ -97,14 +97,14 @@
             <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama produk atau kode barang...">
         </div>
 
-        <select name="kategori" onchange="this.form.submit()">
+        <select name="kategori" onchange="this.form.requestSubmit()">
             <option value="">Semua Kategori</option>
             @foreach ($kategoriList as $k)
                 <option value="{{ $k }}" @selected(request('kategori') === $k)>{{ $k }}</option>
             @endforeach
         </select>
 
-        <select name="stok" onchange="this.form.submit()">
+        <select name="stok" onchange="this.form.requestSubmit()">
             <option value="">Semua Status Stok</option>
             <option value="tersedia" @selected(request('stok') === 'tersedia')>Tersedia</option>
             <option value="menipis"  @selected(request('stok') === 'menipis')>Stok Menipis</option>
@@ -287,6 +287,7 @@
 
 @push('scripts')
 <script>
+onPage(function () {
     // ===== Modal tambah / edit =====
     const modal     = document.getElementById('productModal');
     const form      = document.getElementById('productForm');
@@ -366,7 +367,8 @@
         semuaHalaman = true; bulkSemua.value = '1';
         updateBulk();
     });
-    
+    rowChecks().forEach(c => c.addEventListener('change', updateBulk));
+
     document.getElementById('bulkForm').addEventListener('submit', e => {
         const n = semuaHalaman ? btnSemua.dataset.total : rowChecks().filter(c => c.checked).length;
         if (semuaHalaman) {
@@ -375,5 +377,6 @@
             e.preventDefault();
         }
     });
+});
 </script>
 @endpush

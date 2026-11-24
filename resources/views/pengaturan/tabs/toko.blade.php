@@ -164,6 +164,7 @@
 
 @push('scripts')
 <script>
+onPage(function () {
     // ===== Modal =====
     const tokoModal = document.getElementById('tokoModal');
     document.getElementById('btnUbahToko').addEventListener('click', () => tokoModal.classList.add('show'));
@@ -215,5 +216,6 @@
             }
         });
     });
+});
 </script>
 @endpush

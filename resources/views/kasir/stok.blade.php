@@ -88,7 +88,7 @@
             <form method="GET" action="{{ route('kasir.stok') }}" class="urut-form">
                 @foreach ($dipilih as $k) <input type="hidden" name="kategori[]" value="{{ $k }}"> @endforeach
                 @if (request('q')) <input type="hidden" name="q" value="{{ request('q') }}"> @endif
-                <select name="urut" class="range-select" onchange="this.form.submit()">
+                <select name="urut" class="range-select" onchange="this.form.requestSubmit()">
                     <option value="">Urutkan: Terbaru</option>
                     <option value="nama"  @selected(request('urut') === 'nama')>Urutkan: Nama</option>
                     <option value="stok"  @selected(request('urut') === 'stok')>Urutkan: Stok Terendah</option>
@@ -221,13 +221,16 @@
 
 @push('scripts')
 <script>
+onPage(function () {
     // Jam
     function jam() {
         const d = new Date(), p = n => String(n).padStart(2, '0');
         document.getElementById('stokClock').textContent =
             `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} · ${p(d.getHours())}:${p(d.getMinutes())}`;
     }
-    jam(); setInterval(jam, 20000);
+    jam();
+    const jamTimer = setInterval(jam, 20000);
+    document.addEventListener('turbo:before-render', () => clearInterval(jamTimer), { once: true });
 
     // "Semua Kategori" menghapus centang kategori lain, dan sebaliknya
     const semua = document.getElementById('chkSemua');
@@ -237,5 +240,6 @@
     kats.forEach(c => c.addEventListener('change', () => {
         semua.checked = !kats.some(x => x.checked);
     }));
+});
 </script>
 @endpush
