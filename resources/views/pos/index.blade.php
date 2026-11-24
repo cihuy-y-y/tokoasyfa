@@ -21,6 +21,16 @@
 
 {{-- Judul --}}
 <div class="page-bar">
+    @if (count($tertunda))
+    <div class="pending-bar">
+        <strong>Pembayaran belum selesai:</strong>
+        @foreach ($tertunda as $t)
+            <span>{{ $t['kode'] }} · Rp {{ number_format($t['total'], 0, ',', '.') }} · {{ $t['metode'] }}</span>
+            <button type="button" class="btn-lanjut" data-id="{{ $t['id'] }}" data-url="{{ $t['url'] }}"
+                    data-total="{{ $t['total'] }}" data-metode="{{ $t['metode'] }}">Tampilkan QR</button>
+        @endforeach
+    </div>
+    @endif
     <div class="page-title">
         <span class="page-ico round">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -449,8 +459,6 @@
         $('payFoot').style.display   = 'none';
         $('onlineBox').style.display = '';
         $('qrStatus').textContent    = 'Menunggu pembayaran...';
-        console.log('Respons pembayaran Midtrans:', json);
-        console.log('QR String:', json.qr_string);
         console.log('QR URL:', json.qr_url);
 
         $('qrCanvas').innerHTML = '';
@@ -530,6 +538,29 @@
     $('btnCetak').addEventListener('click', cetakStruk);
     $('okCetak').addEventListener('click', cetakStruk);
     $('okBaru').addEventListener('click', closeAll);
+
+    async function lanjutkan(b) {
+    stopOnline();
+    const res  = await fetch(b.dataset.url, { headers: { 'Accept': 'application/json' } });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) { toast(json.message || 'Gagal membuka pembayaran.', true); setTimeout(() => location.reload(), 1500); return; }
+
+    metode = b.dataset.metode;
+    $('payTotal').textContent  = rp(b.dataset.total);
+    $('payMetode').textContent = metode;
+    $('payModal').classList.add('show');
+    mulaiOnline(json);
+}
+document.querySelectorAll('.btn-lanjut').forEach(b => b.addEventListener('click', () => lanjutkan(b)));
+
+// Dibuka dari Laporan (?lanjut=ID)
+const autoId = @json(request()->query('lanjut'));
+
+if (autoId) {
+    document.querySelector(
+        `.btn-lanjut[data-id="${autoId}"]`
+    )?.click();
+}
 
     // ===== Mulai =====
     renderProduk();

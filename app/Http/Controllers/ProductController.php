@@ -34,7 +34,7 @@ class ProductController extends Controller
             default    => null,
         };
 
-        $products = $query->orderBy('nama')->paginate(10)->withQueryString();
+        $products = $this->filter($request)->orderBy('nama')->paginate(10)->withQueryString();
 
         // Ringkasan (dari seluruh barang, tidak terpengaruh filter)
         $totalProduk = Product::count();
@@ -101,23 +101,48 @@ class ProductController extends Controller
 
     public function bulkDestroy(Request $request)
     {
+        $semua = $request->boolean('semua');
+    
         $request->validate([
-            'ids'   => ['required', 'array'],
+            'ids'   => [Rule::requiredIf(! $semua), 'array'],
             'ids.*' => ['integer', 'exists:products,id'],
-        ], [
-            'ids.required' => 'Pilih barang yang ingin dihapus.',
-        ]);
-
-        $products = Product::whereIn('id', $request->ids)->get();
+        ], ['ids.required' => 'Pilih barang yang ingin dihapus.']);
+    
+        $products = $semua
+            ? $this->filter($request)->get()                    // semua yang cocok dengan filter aktif
+            : Product::whereIn('id', $request->ids)->get();
+    
         foreach ($products as $p) {
             $this->hapusGambar($p->gambar);
             $p->delete();
         }
-
-        return back()->with('success', $products->count() . ' barang berhasil dihapus.');
+    
+        return redirect()->route('barang.index')->with('success', $products->count() . ' barang berhasil dihapus.');
     }
 
     // ---------- Helper ----------
+
+        // Dipakai index() dan bulkDestroy()
+    private function filter(Request $request)
+    {
+        $query = Product::query();
+
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(fn ($w) => $w->where('nama', 'like', "%{$q}%")->orWhere('kode', 'like', "%{$q}%"));
+        }
+        if ($request->filled('kategori')) {
+            $query->where('kategori', $request->kategori);
+        }
+        match ($request->stok) {
+            'tersedia' => $query->whereColumn('stok', '>', 'stok_minimum'),
+            'menipis'  => $query->where('stok', '>', 0)->whereColumn('stok', '<=', 'stok_minimum'),
+            'habis'    => $query->where('stok', 0),
+            default    => null,
+        };
+
+        return $query;
+    }
 
     private function rules(?Product $product = null): array
     {

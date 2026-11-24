@@ -9,6 +9,7 @@ use App\Models\TransactionItem;
 use App\Models\User;
 use App\Services\MidtransService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -30,7 +31,7 @@ class PosController extends Controller
         Transaction::where('status', 'menunggu')->where('kadaluarsa_at', '<', now())
             ->get()->each->batalkan();
 
-        $produk = Product::orderBy('nama')->get()->map(fn ($p) => [
+        $produk = Product::orderBy('nama')->get()->map(fn($p) => [
             'id'       => $p->id,
             'nama'     => $p->nama,
             'kode'     => $p->kode,
@@ -38,13 +39,25 @@ class PosController extends Controller
             'harga'    => (int) $p->harga_jual,
             'stok'     => (int) $p->stok,
             'gambar'   => $p->gambar && file_exists(public_path('images/produk/' . $p->gambar))
-                            ? asset('images/produk/' . $p->gambar) : null,
+                ? asset('images/produk/' . $p->gambar) : null,
         ])->values();
+
+        $tertunda = Transaction::where('user_id', Auth::id())
+            ->where('status', 'menunggu')->where('kadaluarsa_at', '>', now())
+            ->latest('id')->get()
+            ->map(fn($t) => [
+                'id' => $t->id,
+                'kode' => $t->kode,
+                'total' => $t->total,
+                'metode' => $t->metode,
+                'url' => route('pos.lanjut', $t),
+            ]);
 
         return view('pos.index', [
             'produk'   => $produk,
             'metode'   => $this->metodeAktif(),
             'kategori' => Product::KATEGORI,
+            'tertunda' => $tertunda,
             'info'     => [],
         ]);
     }
@@ -133,6 +146,25 @@ class PosController extends Controller
         $transaction->batalkan();
 
         return response()->json(['ok' => true]);
+    }
+
+    public function lanjut(Request $request, Transaction $transaction)
+    {
+        $this->izin($request, $transaction);   // kasir hanya miliknya sendiri
+
+        $habis = ! $transaction->kadaluarsa_at || $transaction->kadaluarsa_at->isPast();
+        if ($transaction->status !== 'menunggu' || $habis) {
+            if ($transaction->status === 'menunggu') $transaction->batalkan();
+            return response()->json(['message' => 'Pembayaran ini sudah tidak berlaku.'], 409);
+        }
+
+        return response()->json($this->ringkas($transaction) + [
+            'qr_string'  => $transaction->qr_string,
+            'qr_url'     => $transaction->qr_url,
+            'sisa_detik' => max(0, (int) now()->diffInSeconds($transaction->kadaluarsa_at, false)),
+            'status_url' => route('pos.status', $transaction),
+            'batal_url'  => route('pos.batal', $transaction),
+        ]);
     }
 
     public function struk(Request $request, Transaction $transaction)
@@ -270,7 +302,7 @@ class PosController extends Controller
 
         return array_values(array_filter(
             Transaction::METODE,
-            fn ($m) => isset(self::METODE_KEY[$m]) && ($s[self::METODE_KEY[$m]] ?? '0') === '1'
+            fn($m) => isset(self::METODE_KEY[$m]) && ($s[self::METODE_KEY[$m]] ?? '0') === '1'
         ));
     }
 }

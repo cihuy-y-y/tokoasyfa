@@ -127,6 +127,9 @@
                             <a href="{{ route('pos.struk', ['transaction' => $t, 'cetak' => 1]) }}" target="_blank" class="act" title="Cetak struk">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2M6 14h12v7H6z"/></svg>
                             </a>
+                            @if ($t->status === 'menunggu' && $t->kadaluarsa_at && $t->kadaluarsa_at->isFuture())
+                                <a href="{{ route('pos.index', ['lanjut' => $t->id]) }}" class="act" title="Lanjutkan pembayaran">💳</a>
+                            @endif
                         </div>
                     </td>
                 </tr>

@@ -117,12 +117,20 @@
     {{-- Form tersembunyi untuk hapus massal (checkbox memakai atribut form="bulkForm") --}}
     <form id="bulkForm" action="{{ route('barang.bulk-destroy') }}" method="POST">
         @csrf @method('DELETE')
+        <input type="hidden" name="semua" id="bulkSemua" value="0">
+        <input type="hidden" name="q" value="{{ request('q') }}">
+        <input type="hidden" name="kategori" value="{{ request('kategori') }}">
+        <input type="hidden" name="stok" value="{{ request('stok') }}">
     </form>
-
-    <div class="bulk-bar" id="bulkBar">
+        
+    <div class="bulk-bar show" id="bulkBar">
         <span><strong id="bulkCount">0</strong> barang dipilih</span>
-        <button type="submit" form="bulkForm" class="btn-bulk"
-                onclick="return confirm('Hapus semua barang yang dipilih?')">Hapus Terpilih</button>
+        @if ($products->total() > $products->count())
+            <button type="button" class="btn-link" id="btnPilihSemua" data-total="{{ $products->total() }}">
+                Pilih semua {{ $products->total() }} data (semua halaman)
+            </button>
+        @endif
+        <button type="submit" form="bulkForm" class="btn-bulk" id="btnHapusTerpilih" disabled>🗑 Hapus Terpilih</button>
     </div>
 
     <div class="table-wrap">
@@ -335,22 +343,37 @@
     @endif
 
     // ===== Pilih banyak + hapus massal =====
-    const checkAll  = document.getElementById('checkAll');
-    const bulkBar   = document.getElementById('bulkBar');
-    const bulkCount = document.getElementById('bulkCount');
-    const rowChecks = () => [...document.querySelectorAll('.row-check')];
-
+    const checkAll   = document.getElementById('checkAll');
+    const bulkCount  = document.getElementById('bulkCount');
+    const bulkSemua  = document.getElementById('bulkSemua');
+    const btnHapus   = document.getElementById('btnHapusTerpilih');
+    const btnSemua   = document.getElementById('btnPilihSemua');
+    const rowChecks  = () => [...document.querySelectorAll('.row-check')];
+    let semuaHalaman = false;
+    
     function updateBulk() {
         const n = rowChecks().filter(c => c.checked).length;
-        bulkCount.textContent = n;
-        bulkBar.classList.toggle('show', n > 0);
+        bulkCount.textContent = semuaHalaman ? btnSemua.dataset.total : n;
+        btnHapus.disabled = !(n > 0 || semuaHalaman);
         checkAll.checked = n > 0 && n === rowChecks().length;
+        if (!checkAll.checked) { semuaHalaman = false; bulkSemua.value = '0'; }
     }
-
-    checkAll.addEventListener('change', () => {
-        rowChecks().forEach(c => c.checked = checkAll.checked);
+    checkAll.addEventListener('change', () => { rowChecks().forEach(c => c.checked = checkAll.checked); updateBulk(); });
+    rowChecks().forEach(c => c.addEventListener('change', updateBulk));
+    
+    if (btnSemua) btnSemua.addEventListener('click', () => {
+        rowChecks().forEach(c => c.checked = true);
+        semuaHalaman = true; bulkSemua.value = '1';
         updateBulk();
     });
-    rowChecks().forEach(c => c.addEventListener('change', updateBulk));
+    
+    document.getElementById('bulkForm').addEventListener('submit', e => {
+        const n = semuaHalaman ? btnSemua.dataset.total : rowChecks().filter(c => c.checked).length;
+        if (semuaHalaman) {
+            if (prompt(`Akan menghapus ${n} barang (semua halaman). Ketik HAPUS untuk lanjut:`) !== 'HAPUS') e.preventDefault();
+        } else if (!confirm(`Hapus ${n} barang yang dipilih?`)) {
+            e.preventDefault();
+        }
+    });
 </script>
 @endpush

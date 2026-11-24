@@ -231,3 +231,6 @@
 .qr-status { text-align: center; font-weight: 600; color: var(--pink-dark); }
 .qr-timer { margin: 4px 0 14px; text-align: center; font-size: 13px; color: var(--muted); }
 .qr-cancel { display: block; width: 100%; }
+
+.pending-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 18px; padding: 12px 16px; border-radius: 12px; background: #e0f2fe; color: #075985; font-size: 14px; }
+.btn-lanjut { padding: 6px 14px; border: none; border-radius: 8px; background: var(--pink); color: #fff; font-family: inherit; font-size: 13px; cursor: pointer; }
