@@ -256,7 +256,10 @@
                                 </button>
 
                                 <form action="{{ route('laporan.destroy', $t) }}" method="POST"
-                                      onsubmit="return confirm('Hapus transaksi {{ $t->kode }}?')">
+                                      data-confirm="Apakah kamu yakin ingin menghapus transaksi ini? Data yang dihapus tidak dapat dikembalikan."
+                                      data-confirm-title="Hapus Transaksi?"
+                                      data-confirm-detail="{{ $t->kode }}"
+                                      data-confirm-button="Ya, Hapus">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="act act-del" title="Hapus">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg>

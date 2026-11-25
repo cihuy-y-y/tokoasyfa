@@ -354,8 +354,21 @@ onPage(function () {
 
     $('diskon').addEventListener('input', renderCart);
 
-    $('btnKosongkan').addEventListener('click', () => {
-        if (Object.keys(cart).length && confirm('Kosongkan keranjang?')) { cart = {}; renderCart(); }
+    $('btnKosongkan').addEventListener('click', async () => {
+        const jumlah = Object.keys(cart).length;
+        if (!jumlah) return;
+
+        const ok = await window.appConfirm({
+            title: 'Kosongkan Keranjang?',
+            message: 'Apakah kamu yakin ingin menghapus seluruh barang dari keranjang?',
+            detail: `${jumlah} jenis barang di keranjang`,
+            confirmText: 'Ya, Kosongkan'
+        });
+
+        if (ok) {
+            cart = {};
+            renderCart();
+        }
     });
 
     // ===== Metode pembayaran =====

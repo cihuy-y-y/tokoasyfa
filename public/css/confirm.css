@@ -1,0 +1,19 @@
+/* Modal konfirmasi global - tema Toko Asyfa */
+.app-confirm-overlay { position:fixed; inset:0; z-index:20000; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(35,15,25,.48); backdrop-filter:blur(5px); }
+.app-confirm-overlay.is-open { display:flex; animation:appConfirmFade .18s ease; }
+.app-confirm-box { width:min(100%,420px); padding:30px; border-radius:22px; background:#fff; text-align:center; box-shadow:0 20px 60px rgba(80,20,45,.22); animation:appConfirmPop .22s ease; }
+.app-confirm-icon { width:72px; height:72px; margin:0 auto 17px; display:grid; place-items:center; border-radius:50%; background:#fce3eb; color:#c2456e; }
+.app-confirm-icon svg { width:34px; height:34px; }
+.app-confirm-box h3 { margin:0 0 9px; color:#9f3157; font-size:22px; font-weight:700; }
+.app-confirm-box p { margin:0 0 17px; color:#777; font-size:14px; line-height:1.65; }
+.app-confirm-detail { margin:0 0 21px; padding:12px 14px; border-radius:12px; background:#fff1f5; color:#a43c60; font-size:14px; font-weight:600; overflow-wrap:anywhere; }
+.app-confirm-actions { display:flex; gap:10px; }
+.app-confirm-actions button { flex:1; border:0; border-radius:11px; padding:12px 14px; font:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:background .2s,transform .2s; }
+.app-confirm-actions button:active { transform:scale(.98); }
+.app-confirm-cancel { background:#f4e8ec; color:#75505d; }
+.app-confirm-cancel:hover { background:#ead8df; }
+.app-confirm-ok { background:#c2456e; color:#fff; }
+.app-confirm-ok:hover { background:#a83259; }
+@keyframes appConfirmFade { from{opacity:0} to{opacity:1} }
+@keyframes appConfirmPop { from{opacity:0;transform:translateY(9px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+@media(max-width:480px) { .app-confirm-box { padding:25px 20px; } }

@@ -106,14 +106,16 @@
     </form>
 
     {{-- Form tersembunyi hapus massal --}}
-    <form id="bulkForm" action="{{ route('owner.users.bulk-destroy') }}" method="POST">
+    <form id="bulkForm" action="{{ route('owner.users.bulk-destroy') }}" method="POST"
+          data-confirm="Apakah kamu yakin ingin menghapus pengguna yang dipilih?"
+          data-confirm-title="Hapus Pengguna Terpilih?"
+          data-confirm-button="Ya, Hapus">
         @csrf @method('DELETE')
     </form>
 
     <div class="bulk-bar" id="bulkBar">
         <span><strong id="bulkCount">0</strong> pengguna dipilih</span>
-        <button type="submit" form="bulkForm" class="btn-bulk"
-                onclick="return confirm('Hapus semua pengguna yang dipilih?')">Hapus Terpilih</button>
+        <button type="submit" form="bulkForm" class="btn-bulk">🗑 Hapus Terpilih</button>
     </div>
 
     <div class="table-wrap">
@@ -183,7 +185,10 @@
 
                                 @if ($u->status === 'pending')
                                     <form action="{{ route('owner.users.reject', $u) }}" method="POST"
-                                          onsubmit="return confirm('Tolak pendaftaran {{ addslashes($u->username) }}?')">
+                                          data-confirm="Apakah kamu yakin ingin menolak pendaftaran pengguna ini?"
+                                          data-confirm-title="Tolak Pendaftaran?"
+                                          data-confirm-detail="{{ $u->username }}"
+                                          data-confirm-button="Ya, Tolak">
                                         @csrf @method('PATCH')
                                         <button type="submit" class="btn-no">Tolak</button>
                                     </form>
@@ -191,7 +196,10 @@
                             @endif
 
                             <form action="{{ route('owner.users.destroy', $u) }}" method="POST"
-                                  onsubmit="return confirm('Hapus pengguna {{ addslashes($u->username) }}?')">
+                                  data-confirm="Apakah kamu yakin ingin menghapus pengguna ini? Data yang dihapus tidak dapat dikembalikan."
+                                  data-confirm-title="Hapus Pengguna?"
+                                  data-confirm-detail="{{ $u->username }}"
+                                  data-confirm-button="Ya, Hapus">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="act act-del" title="Hapus">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg>
@@ -369,6 +377,8 @@ onPage(function () {
         const n = rowChecks().filter(c => c.checked).length;
         bulkCount.textContent = n;
         bulkBar.classList.toggle('show', n > 0);
+        const bulkForm = document.getElementById('bulkForm');
+        if (bulkForm) bulkForm.dataset.confirmDetail = `${n} pengguna dipilih`;
         checkAll.checked = n > 0 && n === rowChecks().length;
     }
 

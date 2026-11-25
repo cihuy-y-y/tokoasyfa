@@ -6,6 +6,128 @@
     {{-- dashboard.css dipakai untuk gaya kartu ringkasan (.stat-card, dst.) --}}
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/barang.css') }}">
+
+<style> 
+/* ===== Modal Konfirmasi Hapus ===== */
+.confirm-delete-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(35, 15, 25, 0.48);
+    backdrop-filter: blur(5px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 10000;
+}
+
+.confirm-delete-overlay.active {
+    display: flex;
+    animation: fadeDelete 0.2s ease;
+}
+
+.confirm-delete-box {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    border-radius: 22px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(80, 20, 45, 0.2);
+    animation: popDelete 0.25s ease;
+}
+
+.confirm-delete-icon {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: #fce3eb;
+    color: #c2456e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-delete-icon svg {
+    width: 35px;
+    height: 35px;
+}
+
+.confirm-delete-box h3 {
+    color: #9f3157;
+    font-size: 23px;
+    margin: 0 0 10px;
+}
+
+.confirm-delete-message {
+    color: #777;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
+
+.confirm-delete-detail {
+    background: #fff1f5;
+    color: #a43c60;
+    padding: 13px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 22px;
+    overflow-wrap: anywhere;
+}
+
+.confirm-delete-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.confirm-delete-actions button {
+    flex: 1;
+    border: none;
+    padding: 12px;
+    border-radius: 11px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-delete-cancel {
+    background: #f4e8ec;
+    color: #75505d;
+}
+
+.btn-delete-cancel:hover {
+    background: #ead8df;
+}
+
+.btn-delete-confirm {
+    background: #c2456e;
+    color: white;
+}
+
+.btn-delete-confirm:hover {
+    background: #a83259;
+}
+
+@keyframes fadeDelete {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes popDelete {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+</style>
 @endpush
 
 @section('content')
@@ -123,14 +245,18 @@
         <input type="hidden" name="stok" value="{{ request('stok') }}">
     </form>
         
-    <div class="bulk-bar show" id="bulkBar">
+    <div class="bulk-bar" id="bulkBar">
         <span><strong id="bulkCount">0</strong> barang dipilih</span>
         @if ($products->total() > $products->count())
-            <button type="button" class="btn-link" id="btnPilihSemua" data-total="{{ $products->total() }}">
+            <button type="button" class="btn-link" id="btnPilihSemua"
+                    data-total="{{ $products->total() }}">
                 Pilih semua {{ $products->total() }} data (semua halaman)
             </button>
         @endif
-        <button type="submit" form="bulkForm" class="btn-bulk" id="btnHapusTerpilih" disabled>🗑 Hapus Terpilih</button>
+        <button type="submit" form="bulkForm" class="btn-bulk"
+                id="btnHapusTerpilih" disabled>
+            🗑 Hapus Terpilih
+        </button>
     </div>
 
     <div class="table-wrap">
@@ -183,8 +309,10 @@
                                     data-product="{{ json_encode($p->only(['id','kode','nama','kategori','harga_beli','harga_jual','stok','stok_minimum'])) }}">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
                             </button>
-                            <form action="{{ route('barang.destroy', $p) }}" method="POST"
-                                  onsubmit="return confirm('Hapus barang {{ addslashes($p->nama) }}?')">
+                            <form action="{{ route('barang.destroy', $p) }}"
+                                  method="POST"
+                                  class="form-hapus-barang"
+                                  data-product-name="{{ $p->nama }}">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="act act-del" title="Hapus">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg>
@@ -283,6 +411,49 @@
         </form>
     </div>
 </div>
+
+<div class="confirm-delete-overlay" id="confirmDeleteModal">
+    <div class="confirm-delete-box">
+
+        <div class="confirm-delete-icon">
+            <svg viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1.8"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"/>
+                <path d="M8 6V4h8v2"/>
+                <path d="M19 6l-1 14H6L5 6"/>
+                <path d="M10 11v5M14 11v5"/>
+            </svg>
+        </div>
+
+        <h3 id="confirmDeleteTitle">Hapus Barang?</h3>
+
+        <p class="confirm-delete-message" id="confirmDeleteMessage">
+            Apakah kamu yakin ingin menghapus barang ini?
+            Data yang dihapus tidak dapat dikembalikan.
+        </p>
+
+        <div class="confirm-delete-detail" id="confirmDeleteDetail">
+            Nama barang
+        </div>
+
+        <div class="confirm-delete-actions">
+            <button type="button"
+                    class="btn-delete-cancel"
+                    id="cancelDelete">
+                Batal
+            </button>
+
+            <button type="button"
+                    class="btn-delete-confirm"
+                    id="confirmDelete">
+                Ya, Hapus
+            </button>
+        </div>
+
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -349,15 +520,22 @@ onPage(function () {
     const bulkSemua  = document.getElementById('bulkSemua');
     const btnHapus   = document.getElementById('btnHapusTerpilih');
     const btnSemua   = document.getElementById('btnPilihSemua');
+    const bulkBar   = document.getElementById('bulkBar');
     const rowChecks  = () => [...document.querySelectorAll('.row-check')];
     let semuaHalaman = false;
     
     function updateBulk() {
         const n = rowChecks().filter(c => c.checked).length;
-        bulkCount.textContent = semuaHalaman ? btnSemua.dataset.total : n;
+        bulkCount.textContent = semuaHalaman
+            ? btnSemua.dataset.total
+            : n;
         btnHapus.disabled = !(n > 0 || semuaHalaman);
         checkAll.checked = n > 0 && n === rowChecks().length;
-        if (!checkAll.checked) { semuaHalaman = false; bulkSemua.value = '0'; }
+        if (!checkAll.checked) {
+            semuaHalaman = false;
+            bulkSemua.value = '0';
+        }
+        bulkBar.classList.toggle('show', n > 0 || semuaHalaman);
     }
     checkAll.addEventListener('change', () => { rowChecks().forEach(c => c.checked = checkAll.checked); updateBulk(); });
     rowChecks().forEach(c => c.addEventListener('change', updateBulk));
@@ -369,14 +547,94 @@ onPage(function () {
     });
     rowChecks().forEach(c => c.addEventListener('change', updateBulk));
 
-    document.getElementById('bulkForm').addEventListener('submit', e => {
-        const n = semuaHalaman ? btnSemua.dataset.total : rowChecks().filter(c => c.checked).length;
-        if (semuaHalaman) {
-            if (prompt(`Akan menghapus ${n} barang (semua halaman). Ketik HAPUS untuk lanjut:`) !== 'HAPUS') e.preventDefault();
-        } else if (!confirm(`Hapus ${n} barang yang dipilih?`)) {
+    // ===== Custom Modal Konfirmasi Hapus =====
+
+    const confirmModal = document.getElementById('confirmDeleteModal');
+    const confirmTitle = document.getElementById('confirmDeleteTitle');
+    const confirmMessage = document.getElementById('confirmDeleteMessage');
+    const confirmDetail = document.getElementById('confirmDeleteDetail');
+
+    const cancelDelete = document.getElementById('cancelDelete');
+    const confirmDelete = document.getElementById('confirmDelete');
+
+    let pendingDeleteForm = null;
+
+    function openDeleteModal(form, title, message, detail) {
+        pendingDeleteForm = form;
+
+        confirmTitle.textContent = title;
+        confirmMessage.textContent = message;
+        confirmDetail.textContent = detail;
+
+        confirmModal.classList.add('active');
+    }
+
+    function closeDeleteModal() {
+        confirmModal.classList.remove('active');
+        pendingDeleteForm = null;
+    }
+
+    // Hapus satu barang
+    document.querySelectorAll('.form-hapus-barang').forEach(form => {
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
+
+            const namaBarang = this.dataset.productName;
+
+            openDeleteModal(
+                this,
+                'Hapus Barang?',
+                'Apakah kamu yakin ingin menghapus barang ini? Data yang dihapus tidak dapat dikembalikan.',
+                namaBarang
+            );
+        });
+    });
+
+    // Hapus barang terpilih / massal
+    document.getElementById('bulkForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const jumlah = semuaHalaman
+            ? Number(btnSemua.dataset.total)
+            : rowChecks().filter(c => c.checked).length;
+
+        if (jumlah === 0) return;
+
+        const detail = semuaHalaman
+            ? `Seluruh ${jumlah} barang di semua halaman`
+            : `${jumlah} barang yang dipilih`;
+
+        openDeleteModal(
+            this,
+            'Hapus Barang Terpilih?',
+            'Apakah kamu yakin ingin menghapus data barang berikut? Data yang dihapus tidak dapat dikembalikan.',
+            detail
+        );
+    });
+
+    // Tombol batal
+    cancelDelete.addEventListener('click', closeDeleteModal);
+
+    // Klik area luar modal
+    confirmModal.addEventListener('click', function(e) {
+        if (e.target === confirmModal) {
+            closeDeleteModal();
         }
     });
+
+    // Tombol konfirmasi hapus
+    confirmDelete.addEventListener('click', function() {
+        if (pendingDeleteForm) {
+            const form = pendingDeleteForm;
+            pendingDeleteForm = null;
+
+            confirmModal.classList.remove('active');
+
+            // Jalankan proses penghapusan Laravel
+            form.submit();
+        }
+    });
+
 });
 </script>
 @endpush
