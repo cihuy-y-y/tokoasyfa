@@ -41,7 +41,10 @@
     </div>
 
     <form action="{{ route('pengaturan.impor') }}" method="POST" enctype="multipart/form-data" data-turbo="false"
-          onsubmit="return confirm('Data saat ini akan diganti dengan isi file backup. Lanjutkan?')">
+          data-confirm="Data saat ini akan diganti dengan isi file backup. Pastikan file yang dipilih benar sebelum melanjutkan."
+          data-confirm-title="Pulihkan Backup?"
+          data-confirm-detail="Proses ini akan mengganti data toko saat ini."
+          data-confirm-button="Ya, Impor">
         @csrf
 
         <div class="form-grid one">
