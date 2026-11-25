@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/barang.css') }}">
 
-<style>
+<style> 
 /* ===== Modal Konfirmasi Hapus ===== */
 .confirm-delete-overlay {
     position: fixed;
@@ -219,14 +219,14 @@
             <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama produk atau kode barang...">
         </div>
 
-        <select name="kategori" onchange="this.form.submit()">
+        <select name="kategori" onchange="this.form.requestSubmit()">
             <option value="">Semua Kategori</option>
             @foreach ($kategoriList as $k)
                 <option value="{{ $k }}" @selected(request('kategori') === $k)>{{ $k }}</option>
             @endforeach
         </select>
 
-        <select name="stok" onchange="this.form.submit()">
+        <select name="stok" onchange="this.form.requestSubmit()">
             <option value="">Semua Status Stok</option>
             <option value="tersedia" @selected(request('stok') === 'tersedia')>Tersedia</option>
             <option value="menipis"  @selected(request('stok') === 'menipis')>Stok Menipis</option>
@@ -236,29 +236,26 @@
         <a href="{{ route('barang.index') }}" class="btn-reset">↻ Reset</a>
     </form>
 
-       {{-- Form tersembunyi untuk hapus massal --}}
+    {{-- Form tersembunyi untuk hapus massal (checkbox memakai atribut form="bulkForm") --}}
     <form id="bulkForm" action="{{ route('barang.bulk-destroy') }}" method="POST">
-        @csrf
-        @method('DELETE')
+        @csrf @method('DELETE')
         <input type="hidden" name="semua" id="bulkSemua" value="0">
         <input type="hidden" name="q" value="{{ request('q') }}">
         <input type="hidden" name="kategori" value="{{ request('kategori') }}">
         <input type="hidden" name="stok" value="{{ request('stok') }}">
     </form>
-
+        
     <div class="bulk-bar" id="bulkBar">
         <span><strong id="bulkCount">0</strong> barang dipilih</span>
-
         @if ($products->total() > $products->count())
             <button type="button" class="btn-link" id="btnPilihSemua"
                     data-total="{{ $products->total() }}">
                 Pilih semua {{ $products->total() }} data (semua halaman)
             </button>
         @endif
-
-        <button type="submit" form="bulkForm"
-                class="btn-bulk" id="btnHapusTerpilih" disabled>
-            Hapus Terpilih
+        <button type="submit" form="bulkForm" class="btn-bulk"
+                id="btnHapusTerpilih" disabled>
+            🗑 Hapus Terpilih
         </button>
     </div>
 
@@ -461,6 +458,7 @@
 
 @push('scripts')
 <script>
+onPage(function () {
     // ===== Modal tambah / edit =====
     const modal     = document.getElementById('productModal');
     const form      = document.getElementById('productForm');
@@ -517,71 +515,46 @@
     @endif
 
     // ===== Pilih banyak + hapus massal =====
-    const checkAll  = document.getElementById('checkAll');
+    const checkAll   = document.getElementById('checkAll');
+    const bulkCount  = document.getElementById('bulkCount');
+    const bulkSemua  = document.getElementById('bulkSemua');
+    const btnHapus   = document.getElementById('btnHapusTerpilih');
+    const btnSemua   = document.getElementById('btnPilihSemua');
     const bulkBar   = document.getElementById('bulkBar');
-    const bulkCount = document.getElementById('bulkCount');
-    const bulkSemua = document.getElementById('bulkSemua');
-    const btnHapus  = document.getElementById('btnHapusTerpilih');
-    const btnSemua  = document.getElementById('btnPilihSemua');
-
-    const rowChecks = () => [...document.querySelectorAll('.row-check')];
-
+    const rowChecks  = () => [...document.querySelectorAll('.row-check')];
     let semuaHalaman = false;
-
+    
     function updateBulk() {
         const n = rowChecks().filter(c => c.checked).length;
-
+        bulkCount.textContent = semuaHalaman
+            ? btnSemua.dataset.total
+            : n;
+        btnHapus.disabled = !(n > 0 || semuaHalaman);
         checkAll.checked = n > 0 && n === rowChecks().length;
-
         if (!checkAll.checked) {
             semuaHalaman = false;
             bulkSemua.value = '0';
         }
-
-        bulkCount.textContent =
-            semuaHalaman && btnSemua
-                ? btnSemua.dataset.total
-                : n;
-
-        btnHapus.disabled = !(n > 0 || semuaHalaman);
         bulkBar.classList.toggle('show', n > 0 || semuaHalaman);
     }
-
-    // Pilih semua barang pada halaman aktif
-    checkAll.addEventListener('change', () => {
-        rowChecks().forEach(c => {
-            c.checked = checkAll.checked;
-        });
-
+    checkAll.addEventListener('change', () => { rowChecks().forEach(c => c.checked = checkAll.checked); updateBulk(); });
+    rowChecks().forEach(c => c.addEventListener('change', updateBulk));
+    
+    if (btnSemua) btnSemua.addEventListener('click', () => {
+        rowChecks().forEach(c => c.checked = true);
+        semuaHalaman = true; bulkSemua.value = '1';
         updateBulk();
     });
-
-    // Perubahan checkbox barang
-    rowChecks().forEach(c => {
-        c.addEventListener('change', updateBulk);
-    });
-
-    // Pilih seluruh barang dari semua halaman
-    if (btnSemua) {
-        btnSemua.addEventListener('click', () => {
-            rowChecks().forEach(c => {
-                c.checked = true;
-            });
-
-            semuaHalaman = true;
-            bulkSemua.value = '1';
-
-            updateBulk();
-        });
-    }
+    rowChecks().forEach(c => c.addEventListener('change', updateBulk));
 
     // ===== Custom Modal Konfirmasi Hapus =====
-    const confirmModal   = document.getElementById('confirmDeleteModal');
-    const confirmTitle   = document.getElementById('confirmDeleteTitle');
-    const confirmMessage = document.getElementById('confirmDeleteMessage');
-    const confirmDetail  = document.getElementById('confirmDeleteDetail');
 
-    const cancelDelete  = document.getElementById('cancelDelete');
+    const confirmModal = document.getElementById('confirmDeleteModal');
+    const confirmTitle = document.getElementById('confirmDeleteTitle');
+    const confirmMessage = document.getElementById('confirmDeleteMessage');
+    const confirmDetail = document.getElementById('confirmDeleteDetail');
+
+    const cancelDelete = document.getElementById('cancelDelete');
     const confirmDelete = document.getElementById('confirmDelete');
 
     let pendingDeleteForm = null;
@@ -621,7 +594,7 @@
     document.getElementById('bulkForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const jumlah = semuaHalaman && btnSemua
+        const jumlah = semuaHalaman
             ? Number(btnSemua.dataset.total)
             : rowChecks().filter(c => c.checked).length;
 
@@ -660,6 +633,8 @@
             // Jalankan proses penghapusan Laravel
             form.submit();
         }
+    });
+
 });
 </script>
 @endpush
