@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/confirm.css') }}">
     @stack('styles')
     @include('partials.theme')
 
@@ -46,24 +45,6 @@
 </div>
 
 <div class="overlay" id="overlay"></div>
-
-{{-- Modal konfirmasi global pengganti confirm() browser --}}
-<div class="app-confirm-overlay" id="appConfirmModal" aria-hidden="true">
-    <div class="app-confirm-box" role="dialog" aria-modal="true" aria-labelledby="appConfirmTitle">
-        <div class="app-confirm-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 9v4m0 4h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>
-            </svg>
-        </div>
-        <h3 id="appConfirmTitle">Konfirmasi</h3>
-        <p id="appConfirmMessage">Apakah kamu yakin ingin melanjutkan?</p>
-        <div class="app-confirm-detail" id="appConfirmDetail" hidden></div>
-        <div class="app-confirm-actions">
-            <button type="button" class="app-confirm-cancel" id="appConfirmCancel">Batal</button>
-            <button type="button" class="app-confirm-ok" id="appConfirmOk">Ya, Lanjutkan</button>
-        </div>
-    </div>
-</div>
 
 @stack('scripts')
 </body>
